@@ -1,0 +1,15 @@
+name: qrmenu
+
+services:
+  qrmenu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_PRESENTATION_BASE_URL: ${NEXT_PUBLIC_PRESENTATION_BASE_URL:-https://menu.prilmones.com.tr}
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_PRESENTATION_BASE_URL: ${NEXT_PUBLIC_PRESENTATION_BASE_URL:-https://menu.prilmones.com.tr}
+    ports:
+      - "127.0.0.1:${APP_PORT:?Sunucuda bos bir APP_PORT degeri .env dosyasinda tanimlanmalidir}:3000"
+    restart: unless-stopped

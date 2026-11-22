@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+:root {
+  --bg-canvas: #F6F4EE;
+  --text-primary: #171714;
+  --text-secondary: #595950;
+  --accent: #2448D8;
+  --rule-strong: #171714;
+  --rule-subtle: #DCD8CC;
+  --surface-hover: #EFECE3;
+}
+
+@theme inline {
+  --color-canvas: var(--bg-canvas);
+  --color-ink: var(--text-primary);
+  --color-ink-muted: var(--text-secondary);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-ibm-plex-sans), system-ui, sans-serif;
+  --font-display: var(--font-barlow-condensed), system-ui, sans-serif;
+  --font-visual: var(--font-visual-sans), system-ui, sans-serif;
+  --font-night-serif: var(--font-night-display), Georgia, serif;
+  --font-night-body: var(--font-visual-sans), system-ui, sans-serif;
+  --font-lively-heading: var(--font-lively-display), system-ui, sans-serif;
+  --font-ferah: var(--font-ferah-sans), system-ui, sans-serif;
+  --font-klasik: var(--font-klasik-sans), system-ui, sans-serif;
+  --font-vitrin: var(--font-vitrin-sans), system-ui, sans-serif;
+}
+
+html {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.font-visual {
+  font-family: var(--font-visual-sans), system-ui, sans-serif;
+}
+
+.font-night-display {
+  font-family: var(--font-night-display), Georgia, serif;
+}
+
+.font-night-sans {
+  font-family: var(--font-visual-sans), system-ui, sans-serif;
+}
+
+.font-lively-display {
+  font-family: var(--font-lively-display), system-ui, sans-serif;
+}
+
+.font-ferah {
+  font-family: var(--font-ferah-sans), system-ui, sans-serif;
+}
+
+.font-klasik {
+  font-family: var(--font-klasik-sans), system-ui, sans-serif;
+}
+
+.font-vitrin {
+  font-family: var(--font-vitrin-sans), system-ui, sans-serif;
+}
