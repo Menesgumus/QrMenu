@@ -1,54 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { MenuThemeId } from "@/types/menu";
+import { getUiDictionary, VALID_THEME_LIST } from "./theme-options";
+import type { ColorMode, MenuLanguage, MenuThemeId } from "@/types/menu";
 import { ShareMenu } from "./ShareMenu";
+import { VisitorControls } from "./VisitorControls";
 
 interface ThemeSwitcherProps {
   activeTheme: MenuThemeId;
   onSelectTheme: (theme: MenuThemeId) => void;
+  colorMode: ColorMode;
+  onToggleColorMode: () => void;
+  language: MenuLanguage;
+  onSelectLanguage: (language: MenuLanguage) => void;
   businessSlug: string;
   switcherRef?: React.RefObject<HTMLDivElement | null>;
 }
-
-interface ThemeOption {
-  id: MenuThemeId;
-  title: string;
-  subtitle: string;
-}
-
-const THEME_OPTIONS: ThemeOption[] = [
-  {
-    id: "ozel",
-    title: "Özel Menü",
-    subtitle: "Basılı düzen, tipografi odaklı",
-  },
-  {
-    id: "gece",
-    title: "Gece",
-    subtitle: "Koyu atmosfer, kategori odaklı",
-  },
-  {
-    id: "canli",
-    title: "Canlı",
-    subtitle: "Renkli kategori kartları, hızlı akış",
-  },
-  {
-    id: "ferah",
-    title: "Ferah",
-    subtitle: "Serin mavi, açılır-kapanır bölümler",
-  },
-  {
-    id: "klasik",
-    title: "Klasik QR",
-    subtitle: "Fotoğraflı kategori şeridi, hızlı liste",
-  },
-  {
-    id: "vitrin",
-    title: "Vitrin",
-    subtitle: "Büyük fotoğraf kutuları, sade akış",
-  },
-];
 
 function ThemeMiniPreview({ id }: { id: MenuThemeId }) {
   if (id === "ozel") {
@@ -133,24 +100,17 @@ function ThemeMiniPreview({ id }: { id: MenuThemeId }) {
         aria-hidden="true"
         className="h-[42px] w-[56px] shrink-0 rounded-[5px] border border-[#DCE0E5] bg-[#F7F7F8]"
       >
-        <rect x="0" y="0" width="56" height="17" fill="#FFFFFF" />
-        <line x1="0" y1="17" x2="56" y2="17" stroke="#EAECEF" strokeWidth="0.8" />
-        <rect x="4" y="3.5" width="14" height="10" rx="2" fill="#D5B895" stroke="#1A1D21" strokeWidth="1" />
-        <rect x="5" y="10" width="12" height="3.2" fill="#1A1D21" fillOpacity="0.65" />
-        <rect x="4" y="14.5" width="14" height="1.4" rx="0.7" fill="#1A1D21" />
-        <rect x="21" y="3.5" width="14" height="10" rx="2" fill="#C9A882" />
-        <rect x="22" y="10" width="12" height="3.2" fill="#1A1D21" fillOpacity="0.65" />
-        <rect x="38" y="3.5" width="14" height="10" rx="2" fill="#B5936E" />
-        <rect x="39" y="10" width="12" height="3.2" fill="#1A1D21" fillOpacity="0.65" />
-        <rect x="4" y="20" width="48" height="18" rx="2" fill="#FFFFFF" stroke="#EAECEF" strokeWidth="0.8" />
-        <rect x="6" y="22" width="6" height="6" rx="1.2" fill="#D5D8DD" />
-        <rect x="14.5" y="23" width="18" height="2" fill="#1A1D21" />
-        <rect x="14.5" y="26" width="13" height="1.4" fill="#636A73" />
-        <rect x="42" y="24" width="7.5" height="2" fill="#1A1D21" />
-        <line x1="4" y1="29.5" x2="52" y2="29.5" stroke="#EAECEF" strokeWidth="0.7" />
-        <rect x="6" y="31.5" width="6" height="5" rx="1" fill="#D5D8DD" />
-        <rect x="14.5" y="32.5" width="15" height="2" fill="#1A1D21" />
-        <rect x="42" y="32.8" width="7.5" height="2" fill="#1A1D21" />
+        <rect x="4" y="4" width="22.5" height="16" rx="2" fill="#FFFFFF" stroke="#DCE0E5" strokeWidth="0.8" />
+        <rect x="5" y="5" width="20.5" height="9.5" rx="1.2" fill="#D5B895" />
+        <rect x="6.5" y="16" width="11" height="1.8" rx="0.6" fill="#1A1D21" />
+        <rect x="29.5" y="4" width="22.5" height="16" rx="2" fill="#FFFFFF" stroke="#DCE0E5" strokeWidth="0.8" />
+        <rect x="30.5" y="5" width="20.5" height="9.5" rx="1.2" fill="#C9A882" />
+        <rect x="32" y="16" width="12" height="1.8" rx="0.6" fill="#1A1D21" />
+        <rect x="4" y="22.5" width="48" height="15.5" rx="2" fill="#FFFFFF" stroke="#EAECEF" strokeWidth="0.8" />
+        <rect x="6" y="24.5" width="6" height="6" rx="1.2" fill="#D5D8DD" />
+        <rect x="14.5" y="25.5" width="18" height="2" fill="#1A1D21" />
+        <rect x="14.5" y="28.5" width="13" height="1.4" fill="#636A73" />
+        <rect x="42" y="26.5" width="7.5" height="2" fill="#1A1D21" />
       </svg>
     );
   }
@@ -203,15 +163,82 @@ function ThemeMiniPreview({ id }: { id: MenuThemeId }) {
   );
 }
 
+function getSwitcherChromeClasses(theme: MenuThemeId) {
+  if (theme === "ozel") {
+    return {
+      fontClass: "font-sans",
+      trigger:
+        "border-[var(--menu-border-strong)] bg-[var(--menu-bg)] text-[var(--menu-text)] hover:border-[var(--menu-accent)] hover:text-[var(--menu-accent)]",
+      menu: "border-[var(--menu-border-strong)] bg-[var(--menu-surface)] text-[var(--menu-text)] shadow-sm",
+      itemBase: "",
+      itemSelected: "border-[var(--menu-accent)] bg-[var(--menu-accent-soft)]",
+      itemUnselected:
+        "border-[var(--menu-border)] bg-[var(--menu-surface)] hover:border-[var(--menu-border-strong)] hover:bg-[var(--menu-surface-hover)]",
+    };
+  }
+  if (theme === "canli") {
+    return {
+      fontClass: "font-visual",
+      trigger:
+        "rounded-[8px] border-[1.5px] border-[var(--menu-border-strong)] bg-[var(--menu-bg)] font-semibold text-[var(--menu-text)] hover:border-[var(--menu-accent)] hover:text-[var(--menu-accent)]",
+      menu: "rounded-[12px] border-[1.5px] border-[var(--menu-border-strong)] bg-[var(--menu-bg)] text-[var(--menu-text)] shadow-[3px_3px_0_var(--menu-shadow-ink)]",
+      itemBase: "rounded-[9px]",
+      itemSelected:
+        "border-[var(--menu-accent)] bg-[var(--menu-accent-soft)]",
+      itemUnselected:
+        "border-[var(--menu-border)] bg-[var(--menu-surface)] hover:border-[var(--menu-border-strong)]",
+    };
+  }
+  if (theme === "vitrin") {
+    return {
+      fontClass: "font-vitrin",
+      trigger:
+        "rounded-full border-[var(--menu-border-strong)] bg-[var(--menu-surface)] font-medium text-[var(--menu-text)] hover:border-[var(--menu-text)]",
+      menu: "rounded-[14px] border-[var(--menu-border-strong)] bg-[var(--menu-surface)] text-[var(--menu-text)] shadow-lg",
+      itemBase: "rounded-[10px]",
+      itemSelected:
+        "border-[var(--menu-accent)] bg-[var(--menu-accent-soft)]",
+      itemUnselected:
+        "border-[var(--menu-border)] bg-[var(--menu-surface)] hover:border-[var(--menu-border-strong)]",
+    };
+  }
+  const fontMap: Record<MenuThemeId, string> = {
+    ozel: "font-sans",
+    gece: "font-night-sans",
+    canli: "font-visual",
+    ferah: "font-ferah",
+    klasik: "font-klasik",
+    vitrin: "font-vitrin",
+  };
+  return {
+    fontClass: fontMap[theme],
+    trigger:
+      "rounded-[8px] border-[var(--menu-border-strong)] bg-[var(--menu-surface)] font-semibold text-[var(--menu-text)] hover:border-[var(--menu-accent)] hover:text-[var(--menu-accent)]",
+    menu: "rounded-[12px] border-[var(--menu-border-strong)] bg-[var(--menu-surface)] text-[var(--menu-text)] shadow-md",
+    itemBase: "rounded-[8px]",
+    itemSelected: "border-[var(--menu-accent)] bg-[var(--menu-accent-soft)]",
+    itemUnselected:
+      "border-[var(--menu-border)] bg-[var(--menu-surface)] hover:border-[var(--menu-border-strong)] hover:bg-[var(--menu-surface-hover)]",
+  };
+}
+
 export function ThemeSwitcher({
   activeTheme,
   onSelectTheme,
+  colorMode,
+  onToggleColorMode,
+  language,
+  onSelectLanguage,
   businessSlug,
   switcherRef,
 }: ThemeSwitcherProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+  const dict = getUiDictionary(language);
+  const currentMeta = dict.themes[activeTheme] ?? dict.themes.ozel;
+  const chrome = getSwitcherChromeClasses(activeTheme);
 
   useEffect(() => {
     if (!open) return;
@@ -240,69 +267,22 @@ export function ThemeSwitcher({
     };
   }, [open]);
 
-  const currentOption =
-    THEME_OPTIONS.find((opt) => opt.id === activeTheme) ?? THEME_OPTIONS[0];
-
-  const isNight = activeTheme === "gece";
-  const isCanli = activeTheme === "canli";
-  const isFerah = activeTheme === "ferah";
-  const isKlasik = activeTheme === "klasik";
-  const isVitrin = activeTheme === "vitrin";
-
   return (
     <div
       ref={switcherRef}
-      style={
-        isNight || isCanli
-          ? { fontFamily: "var(--font-visual-sans), system-ui, sans-serif" }
-          : isFerah
-            ? { fontFamily: "var(--font-ferah-sans), system-ui, sans-serif" }
-            : isKlasik
-              ? {
-                  fontFamily: "var(--font-klasik-sans), system-ui, sans-serif",
-                }
-              : isVitrin
-                ? {
-                    fontFamily: "var(--font-vitrin-sans), system-ui, sans-serif",
-                  }
-                : undefined
-      }
-      className={`sticky top-0 z-40 border-b ${
-        isNight
-          ? "border-[#2A2D2B] bg-[#131514]/95 backdrop-blur-sm font-night-sans"
-          : isCanli
-            ? "border-[#24201B] bg-[#FFF9ED]/95 backdrop-blur-sm font-visual"
-            : isFerah
-              ? "border-[#DBEAFE] bg-[#FFFFFF]/95 backdrop-blur-sm font-ferah"
-              : isKlasik
-                ? "border-[#EAECEF] bg-[#FFFFFF]/95 backdrop-blur-sm font-klasik"
-                : isVitrin
-                  ? "border-[#EBE9E4] bg-[#FAF9F7]/95 backdrop-blur-sm font-vitrin"
-                  : "border-[#DCD8CC] bg-[#EFECE3]/95 backdrop-blur-sm font-sans"
-      }`}
+      style={{ backgroundColor: "var(--menu-switcher-bg)" }}
+      className={`sticky top-0 z-40 border-b border-[var(--menu-switcher-border)] backdrop-blur-sm ${chrome.fontClass}`}
     >
-      <div className="mx-auto flex w-full max-w-[1220px] items-center justify-between px-4 py-1.5 md:px-8">
-        <div ref={containerRef} className="relative">
+      <div className="mx-auto flex w-full max-w-[1220px] items-center justify-between gap-2 px-3 py-1.5 sm:px-4 md:px-8">
+        <div ref={containerRef} className="relative min-w-0">
           <button
             ref={buttonRef}
             type="button"
             onClick={() => setOpen((prev) => !prev)}
             aria-expanded={open}
             aria-haspopup="menu"
-            aria-label="Tasarım seçici"
-            className={`inline-flex items-center gap-2 border px-2.5 py-1 text-[12px] font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 ${
-              isNight
-                ? "rounded-[6px] border-[#343835] bg-[#242725] text-[#F5F1E8] hover:border-[#F28B50] focus-visible:outline-[#F28B50]"
-                : isCanli
-                  ? "rounded-[8px] border-[1.5px] border-[#24201B] bg-[#FFF9ED] font-semibold text-[#24201B] hover:border-[#AD3028] hover:text-[#AD3028] focus-visible:outline-[#AD3028]"
-                  : isFerah
-                    ? "rounded-[8px] border-[#BFDBFE] bg-[#EFF6FF] font-semibold text-[#182747] hover:border-[#2454D6] hover:text-[#2454D6] focus-visible:outline-[#2454D6]"
-                    : isKlasik
-                      ? "rounded-[8px] border-[#E2E5E9] bg-[#F7F7F8] font-semibold text-[#1A1D21] hover:border-[#1A1D21] focus-visible:outline-[#1A1D21]"
-                      : isVitrin
-                        ? "rounded-full border-[#DFDBD2] bg-[#FFFFFF] font-medium text-[#191817] hover:border-[#191817] focus-visible:outline-[#191817]"
-                        : "border-[#171714] bg-[#F6F4EE] text-[#171714] hover:border-[#2448D8] hover:text-[#2448D8] focus-visible:outline-[#2448D8]"
-            }`}
+            aria-label={dict.controls.themeSelectorLabel}
+            className={`inline-flex h-9 max-w-[148px] items-center gap-1.5 border px-2.5 text-[12px] font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] sm:max-w-none sm:gap-2 ${chrome.trigger}`}
           >
             <svg
               viewBox="0 0 16 16"
@@ -316,15 +296,15 @@ export function ThemeSwitcher({
               <rect x="1.5" y="9.5" width="5" height="5" stroke="currentColor" strokeWidth="1.25" />
               <rect x="9.5" y="9.5" width="5" height="5" stroke="currentColor" strokeWidth="1.25" />
             </svg>
-            <span>Tasarım</span>
-            <span className="opacity-45">·</span>
-            <span className="font-semibold">{currentOption.title}</span>
+            <span className="hidden sm:inline">{dict.controls.themePrefix}</span>
+            <span className="hidden opacity-45 sm:inline">·</span>
+            <span className="truncate font-semibold">{currentMeta.title}</span>
             <svg
               viewBox="0 0 12 12"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true"
-              className={`h-3 w-3 transition-transform duration-150 ${
+              className={`h-3 w-3 shrink-0 transition-transform duration-150 ${
                 open ? "rotate-180" : ""
               }`}
             >
@@ -340,145 +320,44 @@ export function ThemeSwitcher({
           {open && (
             <div
               role="menu"
-              aria-label="Menü tasarımları"
-              className={`absolute top-full left-0 z-50 mt-1.5 w-[min(304px,calc(100vw-32px))] max-h-[calc(100dvh-56px)] overflow-y-auto overscroll-contain border p-2 shadow-sm ${
-                isNight
-                  ? "rounded-[8px] border-[#343835] bg-[#1F2220] text-[#F5F1E8]"
-                  : isCanli
-                    ? "rounded-[12px] border-[1.5px] border-[#24201B] bg-[#FFF9ED] text-[#24201B] shadow-[3px_3px_0_#24201B]"
-                    : isFerah
-                      ? "rounded-[12px] border-[#BFDBFE] bg-[#FFFFFF] text-[#182747] shadow-md"
-                      : isKlasik
-                        ? "rounded-[12px] border-[#E2E5E9] bg-[#FFFFFF] text-[#1A1D21] shadow-md"
-                        : isVitrin
-                          ? "rounded-[14px] border-[#E4E1DA] bg-[#FFFFFF] text-[#191817] shadow-lg"
-                          : "border-[#171714] bg-white text-[#171714]"
-              }`}
+              aria-label={dict.controls.chooseMenuDesign}
+              className={`absolute top-full left-0 z-50 mt-1.5 max-h-[calc(100dvh-56px)] w-[min(304px,calc(100vw-24px))] overflow-y-auto overscroll-contain border p-2 ${chrome.menu}`}
             >
-              <p
-                className={`px-2 pt-1 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] uppercase ${
-                  isNight
-                    ? "text-[#B9BDB6]"
-                    : isCanli
-                      ? "text-[#5C5347]"
-                      : isFerah
-                        ? "text-[#596579]"
-                        : isKlasik
-                          ? "text-[#636A73]"
-                          : isVitrin
-                            ? "text-[#6B6863]"
-                            : "text-[#64635E]"
-                }`}
-              >
-                Menü Tasarımı Seçin
+              <p className="px-2 pt-1 pb-1.5 text-[10.5px] font-semibold tracking-[0.08em] uppercase text-[var(--menu-text-secondary)]">
+                {dict.controls.chooseMenuDesign}
               </p>
 
               <div className="space-y-1.5">
-                {THEME_OPTIONS.map((option) => {
-                  const isSelected = option.id === activeTheme;
+                {VALID_THEME_LIST.map((themeId) => {
+                  const option = dict.themes[themeId];
+                  const isSelected = themeId === activeTheme;
                   return (
                     <button
-                      key={option.id}
+                      key={themeId}
                       type="button"
                       role="menuitemradio"
                       aria-checked={isSelected}
                       onClick={() => {
                         setOpen(false);
-                        onSelectTheme(option.id);
+                        onSelectTheme(themeId);
                       }}
-                      className={`flex w-full items-center gap-3 border p-2 text-left transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1 ${
-                        isNight
-                          ? `rounded-[6px] focus-visible:outline-[#F28B50] ${
-                              isSelected
-                                ? "border-[#F28B50] bg-[#F28B50]/10"
-                                : "border-[#323633] bg-[#242725] hover:border-[#F5F1E8]/35"
-                            }`
-                          : isCanli
-                            ? `rounded-[9px] focus-visible:outline-[#AD3028] ${
-                                isSelected
-                                  ? "border-[#AD3028] bg-[#F4CE45]/35"
-                                  : "border-[#24201B]/25 bg-white hover:border-[#24201B]"
-                              }`
-                            : isFerah
-                              ? `rounded-[9px] focus-visible:outline-[#2454D6] ${
-                                  isSelected
-                                    ? "border-[#2454D6] bg-[#EFF6FF]"
-                                    : "border-[#E2E8F0] bg-[#FFFFFF] hover:border-[#BFDBFE] hover:bg-[#F8FAFC]"
-                                }`
-                              : isKlasik
-                                ? `rounded-[9px] focus-visible:outline-[#1A1D21] ${
-                                    isSelected
-                                      ? "border-[#1A1D21] bg-[#F7F7F8]"
-                                      : "border-[#EAECEF] bg-[#FFFFFF] hover:border-[#CBD0D6]"
-                                  }`
-                                : isVitrin
-                                  ? `rounded-[10px] focus-visible:outline-[#191817] ${
-                                      isSelected
-                                        ? "border-[#191817] bg-[#FAF9F7]"
-                                        : "border-[#EBE9E4] bg-[#FFFFFF] hover:border-[#CFCAC0]"
-                                    }`
-                                  : `focus-visible:outline-[#2448D8] ${
-                                      isSelected
-                                        ? "border-[#2448D8] bg-[#2448D8]/[0.05]"
-                                        : "border-[#E6E4DD] bg-white hover:border-[#141413]/40 hover:bg-[#FAFAF8]"
-                                    }`
+                      className={`flex w-full items-center gap-3 border p-2 text-left transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--menu-focus)] ${chrome.itemBase} ${
+                        isSelected ? chrome.itemSelected : chrome.itemUnselected
                       }`}
                     >
-                      <ThemeMiniPreview id={option.id} />
+                      <ThemeMiniPreview id={themeId} />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
-                          <span
-                            className={`text-[13px] font-semibold ${
-                              isNight
-                                ? "text-[#F5F1E8]"
-                                : isCanli
-                                  ? "text-[#24201B]"
-                                  : isFerah
-                                    ? "text-[#182747]"
-                                    : isKlasik
-                                      ? "text-[#1A1D21]"
-                                      : isVitrin
-                                        ? "text-[#191817]"
-                                        : "text-[#141413]"
-                            }`}
-                          >
+                          <span className="text-[13px] font-semibold text-[var(--menu-text)]">
                             {option.title}
                           </span>
                           {isSelected && (
-                            <span
-                              className={`text-[10.5px] font-semibold ${
-                                isNight
-                                  ? "text-[#F28B50]"
-                                  : isCanli
-                                    ? "font-bold text-[#AD3028]"
-                                    : isFerah
-                                      ? "text-[#2454D6]"
-                                      : isKlasik
-                                        ? "text-[#1A1D21]"
-                                        : isVitrin
-                                          ? "text-[#191817]"
-                                          : "text-[#2448D8]"
-                              }`}
-                            >
-                              Seçili
+                            <span className="text-[10.5px] font-semibold text-[var(--menu-accent)]">
+                              {dict.controls.selectedBadge}
                             </span>
                           )}
                         </div>
-                        <p
-                          className={`mt-0.5 text-[11.5px] leading-[1.3] ${
-                            isNight
-                              ? "text-[#B9BDB6]"
-                              : isCanli
-                                ? "text-[#5C5347]"
-                                : isFerah
-                                  ? "text-[#596579]"
-                                  : isKlasik
-                                    ? "text-[#636A73]"
-                                    : isVitrin
-                                      ? "text-[#6B6863]"
-                                      : "text-[#64635E]"
-                          }`}
-                        >
+                        <p className="mt-0.5 text-[11.5px] leading-[1.3] text-[var(--menu-text-secondary)]">
                           {option.subtitle}
                         </p>
                       </div>
@@ -490,27 +369,22 @@ export function ThemeSwitcher({
           )}
         </div>
 
-        <div className="flex items-center gap-3">
-          <span
-            className={`hidden text-[11px] font-medium tracking-[0.04em] md:inline ${
-              isNight
-                ? "text-[#B9BDB6]"
-                : isCanli
-                  ? "text-[#5C5347]"
-                  : isFerah
-                    ? "text-[#596579]"
-                    : isKlasik
-                      ? "text-[#636A73]"
-                      : isVitrin
-                        ? "text-[#6B6863]"
-                        : "text-[#64635E]"
-            }`}
-          >
-            Sunum Önizlemesi
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
+          <span className="hidden text-[11px] font-medium tracking-[0.04em] text-[var(--menu-text-secondary)] lg:inline">
+            {dict.controls.presentationPreview}
           </span>
+          <VisitorControls
+            theme={activeTheme}
+            colorMode={colorMode}
+            language={language}
+            onToggleColorMode={onToggleColorMode}
+            onSelectLanguage={onSelectLanguage}
+          />
           <ShareMenu
             activeTheme={activeTheme}
-            activeThemeTitle={currentOption.title}
+            activeThemeTitle={currentMeta.title}
+            language={language}
+            colorMode={colorMode}
             businessSlug={businessSlug}
           />
         </div>

@@ -180,3 +180,21 @@ Bu belge, aynı ortak menü verisini (`src/data/prototype-menu.ts`) kullanan alt
 ![Mobil 360px Paylaş menüsü](screenshots/sunum-paylasim/mobil-360-paylas.png)
 
 ![Masaüstü 1440px Paylaş menüsü](screenshots/sunum-paylasim/masaustu-1440-paylas.png)
+
+---
+
+## İki Dil (`TR / EN`), Gündüz / Gece Modu ve Kategori Akışı Güncellemeleri
+
+- **Ferah Kategori Başlık Fotoğrafları:** Akordeon kategori başlıklarının solunda numara rozeti yerine mevcut `coverImageUrl` ve kadraj verileriyle `42×42px` / `44×44px` (`40px+` görsel) kare kategori fotoğrafları gösterilir; hem açık hem kapalı durumda görünür ve başlığın tamamı bölümü açıp kapatır.
+- **Klasik QR Kategori Açılış Ekranı:** İlk girişte kompakt işletme başlığı, tam menü arama ve iki sütunlu fotoğraflı kategori kartları sunulur; Vitrin'den farklı olarak kısa ad ve gerçek ürün sayısı fotoğrafın altında ayrı kompakt alanda yer alır. Kategori seçildiğinde **Kategorilere dön** düğmesi ve yatay fotoğraflı kategori şeridi açılır; başka tasarımdan bilinçli kategori seçimiyle geçildiğinde doğrudan ürün listesine iner.
+- **Altı Tasarımda Gündüz / Gece Modu (`light` / `dark`):** Tüm renkler `html[data-menu-theme][data-color-mode]` üzerindeki semantik `--menu-*` CSS değişkenleriyle yönetilir. Kullanıcı açıkça seçmediğinde **Gece** koyu, diğer 5 tasarım açık başlar ve hesaplanan varsayılan değer `localStorage` içine yazılmaz. Açık seçim yapıldığında yenileme ve tema geçişlerinde korunur; fotoğraflara ve logoya `invert` filtresi uygulanmaz. `ItemDetailModal` `document.body` portalında, `ThemeSwitcher` ve `ShareMenu` da seçilen modla tam uyumludur.
+- **Gerçek Türkçe / İngilizce Desteği (`tr` / `en`):** Tek veri kaynağı (`src/data/prototype-menu.ts`) içinde 16 yayındaki ürün, 5 kategori, işletme açıklaması ve görsel `alt` metinleri ile `src/lib/i18n.ts` arayüz sözlüğü üzerinden iki dil desteği sağlanır; fiyatlar yalnızca `TRY` (`₺`), marka adı/adres/telefon aynı kalır. Türkçe ve İngilizce arama (aksanlı/aksansız `çörek` / `corek` / `croissant` / `fig`) tüm tasarımlarda çalışır.
+- **URL, Paylaşım ve Ziyaretçi Kontrolleri:** `tasarim`, `dil=tr|en` ve `mod=light|dark` parametreleri desteklenir (`geçerli URL > kayıtlı tercih > varsayılan`). Sunum çubuğunda kompakt `TR|EN` + `36×36px` mod düğmesi, müşteri görünümünde (`/m/lokal-firin-kahve`) ise tasarım seçicisiz ince yardımcı şerit yer alır.
+
+### Güncel Doğrulama ve Görseller
+
+- `pnpm exec tsc --noEmit`, `pnpm lint` ve `pnpm build` hatasız tamamlandı.
+- Otomatik Playwright doğrulamasında **6 tasarım × 2 mod × 2 dil = 24 kombinasyon** (`390×844`) ve dar **360px EN** kontrollerinde yatay taşma, kırık görsel, `invert` filtresi veya hydration/konsol hatası oluşmadı; gerçek hesaplanan kontrast oranı 24 kombinasyonda en az **5.15:1** olarak ölçüldü.
+- Güncel görseller tasarım klasörlerine (`mobil-390-koyu.png`, `mobil-390-gunduz.png`, `mobil-390-en-acik.png`, `mobil-390-en-gece.png`, `mobil-390-kategoriler.png`) ve [`mobil-390-acik-koyu-tr-en.png`](screenshots/karsilastirmalar/mobil-390-acik-koyu-tr-en.png) karşılaştırmasına kaydedildi.
+
+![6 tasarım açık, koyu ve TR/EN mobil karşılaştırması](screenshots/karsilastirmalar/mobil-390-acik-koyu-tr-en.png)

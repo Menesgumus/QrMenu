@@ -1,28 +1,61 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { normalizeTurkish } from "@/lib/format";
-import type { GuestMenuData, MenuItem, MenuThemeId } from "@/types/menu";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { matchesBilingualSearch, normalizeTurkish } from "@/lib/format";
+import {
+  getBusinessDescription,
+  getCategoryText,
+  getUiDictionary,
+} from "@/lib/i18n";
+import {
+  getStoredColorModePreference,
+  getStoredLanguagePreference,
+  resolveEffectiveColorMode,
+  resolveEffectiveLanguage,
+  saveColorModePreference,
+  saveLanguagePreference,
+  subscribeVisitorPreferences,
+} from "@/lib/visitor-preferences";
+import type {
+  ColorMode,
+  GuestMenuData,
+  MenuItem,
+  MenuLanguage,
+  MenuThemeId,
+} from "@/types/menu";
 import { CanliMenuView, type CanliViewMode } from "./CanliMenuView";
 import { CategoryNav } from "./CategoryNav";
 import { FerahMenuView } from "./FerahMenuView";
 import { ItemDetailModal } from "./ItemDetailModal";
-import { KlasikQrMenuView } from "./KlasikQrMenuView";
+import { KlasikQrMenuView, type KlasikViewMode } from "./KlasikQrMenuView";
 import { MenuHeader } from "./MenuHeader";
 import { MenuItemRow } from "./MenuItemRow";
 import { NightMenuView } from "./NightMenuView";
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import { CustomerUtilityBar } from "./VisitorControls";
 import { VitrinMenuView, type VitrinViewMode } from "./VitrinMenuView";
 
 interface GuestMenuClientProps {
   data: GuestMenuData;
   initialTheme?: MenuThemeId;
+  explicitUrlLanguage?: MenuLanguage;
+  explicitUrlColorMode?: ColorMode;
   showThemeSwitcher?: boolean;
 }
 
 export function GuestMenuClient({
   data,
   initialTheme,
+  explicitUrlLanguage,
+  explicitUrlColorMode,
   showThemeSwitcher = false,
 }: GuestMenuClientProps) {
   const publishedItems = useMemo(
@@ -41,6 +74,39 @@ export function GuestMenuClient({
   const [activeTheme, setActiveTheme] = useState<MenuThemeId>(
     initialTheme ?? data.business.defaultTheme
   );
+  const [urlColorModeOverride, setUrlColorModeOverride] = useState<
+    ColorMode | undefined
+  >(explicitUrlColorMode);
+  const [urlLanguageOverride, setUrlLanguageOverride] = useState<
+    MenuLanguage | undefined
+  >(explicitUrlLanguage);
+
+  const storedColorMode = useSyncExternalStore(
+    subscribeVisitorPreferences,
+    getStoredColorModePreference,
+    () => null
+  );
+  const storedLanguage = useSyncExternalStore(
+    subscribeVisitorPreferences,
+    getStoredLanguagePreference,
+    () => null
+  );
+
+  const effectiveColorMode = useMemo(
+    () =>
+      resolveEffectiveColorMode(
+        activeTheme,
+        urlColorModeOverride,
+        storedColorMode
+      ),
+    [activeTheme, urlColorModeOverride, storedColorMode]
+  );
+
+  const effectiveLanguage = useMemo(
+    () => resolveEffectiveLanguage(urlLanguageOverride, storedLanguage),
+    [urlLanguageOverride, storedLanguage]
+  );
+
   const [activeCategoryId, setActiveCategoryId] = useState<string>(
     sortedCategories[0]?.id ?? ""
   );
@@ -48,6 +114,8 @@ export function GuestMenuClient({
     useState(false);
   const [canliViewMode, setCanliViewMode] =
     useState<CanliViewMode>("categories");
+  const [klasikViewMode, setKlasikViewMode] =
+    useState<KlasikViewMode>("categories");
   const [vitrinViewMode, setVitrinViewMode] =
     useState<VitrinViewMode>("categories");
   const [ferahOpenCategoryIds, setFerahOpenCategoryIds] = useState<string[]>(
@@ -57,7 +125,7 @@ export function GuestMenuClient({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [switcherHeight, setSwitcherHeight] = useState(
-    showThemeSwitcher ? 39 : 0
+    showThemeSwitcher ? 49 : 0
   );
   const [stickyHeight, setStickyHeight] = useState(48);
 
@@ -68,8 +136,17 @@ export function GuestMenuClient({
   const lastTriggerRef = useRef<HTMLButtonElement | null>(null);
   const pendingThemeCategoryRef = useRef<string | null>(null);
 
-  const normalizedQuery = normalizeTurkish(searchQuery);
-  const isSearching = normalizedQuery.length > 0;
+  const isSearching = normalizeTurkish(searchQuery).length > 0;
+  const dict = getUiDictionary(effectiveLanguage);
+
+  // Sync HTML attributes symmetrically before paint on client updates and dev StrictMode remounts
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.setAttribute("data-menu-theme", activeTheme);
+    root.setAttribute("data-color-mode", effectiveColorMode);
+    root.setAttribute("lang", effectiveLanguage);
+    root.style.colorScheme = effectiveColorMode;
+  }, [activeTheme, effectiveColorMode, effectiveLanguage]);
 
   const visibleSections = useMemo(() => {
     return sortedCategories
@@ -79,12 +156,23 @@ export function GuestMenuClient({
         );
 
         const filteredItems = isSearching
-          ? categoryItems.filter((item) => {
-              const haystack = normalizeTurkish(
-                `${item.name} ${item.displayName ?? ""} ${item.description} ${category.name} ${category.shortLabel ?? ""}`
-              );
-              return haystack.includes(normalizedQuery);
-            })
+          ? categoryItems.filter((item) =>
+              matchesBilingualSearch(
+                [
+                  item.name,
+                  item.displayName,
+                  item.description,
+                  item.translations?.en?.name,
+                  item.translations?.en?.displayName,
+                  item.translations?.en?.description,
+                  category.name,
+                  category.shortLabel,
+                  category.translations?.en?.name,
+                  category.translations?.en?.shortLabel,
+                ],
+                searchQuery
+              )
+            )
           : categoryItems;
 
         return {
@@ -94,7 +182,7 @@ export function GuestMenuClient({
         };
       })
       .filter((section) => section.items.length > 0);
-  }, [sortedCategories, publishedItems, isSearching, normalizedQuery]);
+  }, [sortedCategories, publishedItems, isSearching, searchQuery]);
 
   const totalMatches = useMemo(
     () => visibleSections.reduce((sum, sec) => sum + sec.items.length, 0),
@@ -103,7 +191,7 @@ export function GuestMenuClient({
 
   const totalStickyOffset = switcherHeight + stickyHeight;
 
-  // Measure sticky switcher height if rendered
+  // Measure sticky presentation bar height if rendered
   useEffect(() => {
     if (!showThemeSwitcher) return;
 
@@ -121,9 +209,9 @@ export function GuestMenuClient({
       observer.observe(node);
       return () => observer.disconnect();
     }
-  }, [showThemeSwitcher, activeTheme]);
+  }, [showThemeSwitcher, activeTheme, effectiveLanguage, effectiveColorMode]);
 
-  // Measure sticky category bar height whenever active theme or search panel changes
+  // Measure sticky category bar height whenever active theme, search panel, or mode changes
   useEffect(() => {
     const node = navRef.current;
     if (!node) return;
@@ -139,7 +227,7 @@ export function GuestMenuClient({
       observer.observe(node);
       return () => observer.disconnect();
     }
-  }, [activeTheme, searchOpen, canliViewMode, vitrinViewMode]);
+  }, [activeTheme, searchOpen, canliViewMode, klasikViewMode, vitrinViewMode]);
 
   // Preserve the visible category on screen after switching between themes
   useEffect(() => {
@@ -168,7 +256,6 @@ export function GuestMenuClient({
         activeTheme === "klasik" ||
         activeTheme === "vitrin"
       ) {
-        // Single-category or two-step themes open from the top
         window.scrollTo({ top: 0, behavior: "instant" });
         return;
       }
@@ -270,6 +357,15 @@ export function GuestMenuClient({
         return;
       }
 
+      if (activeTheme === "klasik") {
+        if (isSearching) {
+          setSearchQuery("");
+        }
+        setKlasikViewMode("items");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
       if (activeTheme === "vitrin") {
         if (isSearching) {
           setSearchQuery("");
@@ -279,7 +375,7 @@ export function GuestMenuClient({
         return;
       }
 
-      if (activeTheme === "gece" || activeTheme === "klasik") {
+      if (activeTheme === "gece") {
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
@@ -308,6 +404,12 @@ export function GuestMenuClient({
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  const handleBackToKlasikCategories = useCallback(() => {
+    setHasExplicitCategorySelection(false);
+    setKlasikViewMode("categories");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   const handleBackToVitrinCategories = useCallback(() => {
     setHasExplicitCategorySelection(false);
     setVitrinViewMode("categories");
@@ -318,7 +420,9 @@ export function GuestMenuClient({
     (categoryId: string) => {
       const isCurrentlyOpen = ferahOpenCategoryIds.includes(categoryId);
       if (isCurrentlyOpen) {
-        setFerahOpenCategoryIds((prev) => prev.filter((id) => id !== categoryId));
+        setFerahOpenCategoryIds((prev) =>
+          prev.filter((id) => id !== categoryId)
+        );
         return;
       }
 
@@ -345,8 +449,11 @@ export function GuestMenuClient({
       lockScrollSpyUntilRef.current = Date.now() + 1000;
       pendingThemeCategoryRef.current = activeCategoryId;
       sectionRefs.current = {};
+
       if (nextTheme === "canli") {
-        setCanliViewMode(
+        setCanliViewMode(hasExplicitCategorySelection ? "items" : "categories");
+      } else if (nextTheme === "klasik") {
+        setKlasikViewMode(
           hasExplicitCategorySelection ? "items" : "categories"
         );
       } else if (nextTheme === "vitrin") {
@@ -384,6 +491,42 @@ export function GuestMenuClient({
     ]
   );
 
+  const handleToggleColorMode = useCallback(() => {
+    const nextMode: ColorMode =
+      effectiveColorMode === "dark" ? "light" : "dark";
+    setUrlColorModeOverride(undefined);
+    saveColorModePreference(nextMode);
+
+    if (typeof window !== "undefined") {
+      const nextUrl = new URL(window.location.href);
+      nextUrl.searchParams.set("mod", nextMode);
+      window.history.replaceState(
+        window.history.state,
+        "",
+        nextUrl.toString()
+      );
+    }
+  }, [effectiveColorMode]);
+
+  const handleSelectLanguage = useCallback(
+    (nextLanguage: MenuLanguage) => {
+      if (nextLanguage === effectiveLanguage) return;
+      setUrlLanguageOverride(undefined);
+      saveLanguagePreference(nextLanguage);
+
+      if (typeof window !== "undefined") {
+        const nextUrl = new URL(window.location.href);
+        nextUrl.searchParams.set("dil", nextLanguage);
+        window.history.replaceState(
+          window.history.state,
+          "",
+          nextUrl.toString()
+        );
+      }
+    },
+    [effectiveLanguage]
+  );
+
   const handleToggleSearch = useCallback(() => {
     setSearchOpen((prev) => {
       if (prev) {
@@ -414,20 +557,37 @@ export function GuestMenuClient({
 
   const selectedCategoryName = useMemo(() => {
     if (!selectedItem) return "";
-    return (
-      sortedCategories.find((cat) => cat.id === selectedItem.categoryId)
-        ?.name ?? ""
-    );
-  }, [selectedItem, sortedCategories]);
+    const cat = sortedCategories.find((c) => c.id === selectedItem.categoryId);
+    if (!cat) return "";
+    return getCategoryText(cat, effectiveLanguage).name;
+  }, [selectedItem, sortedCategories, effectiveLanguage]);
+
+  const trimmedQuery = searchQuery.trim();
+  const localizedBusinessDesc = getBusinessDescription(
+    data.business,
+    effectiveLanguage
+  );
 
   return (
-    <>
-      {showThemeSwitcher && (
+    <div lang={effectiveLanguage}>
+      {showThemeSwitcher ? (
         <ThemeSwitcher
           activeTheme={activeTheme}
           onSelectTheme={handleSelectTheme}
+          colorMode={effectiveColorMode}
+          onToggleColorMode={handleToggleColorMode}
+          language={effectiveLanguage}
+          onSelectLanguage={handleSelectLanguage}
           businessSlug={data.business.slug}
           switcherRef={switcherRef}
+        />
+      ) : (
+        <CustomerUtilityBar
+          theme={activeTheme}
+          colorMode={effectiveColorMode}
+          language={effectiveLanguage}
+          onToggleColorMode={handleToggleColorMode}
+          onSelectLanguage={handleSelectLanguage}
         />
       )}
 
@@ -449,6 +609,7 @@ export function GuestMenuClient({
           isSearching={isSearching}
           totalMatches={totalMatches}
           onSelectItem={handleSelectItem}
+          language={effectiveLanguage}
           navRef={navRef}
           stickyTopOffset={switcherHeight}
         />
@@ -456,9 +617,12 @@ export function GuestMenuClient({
         <KlasikQrMenuView
           business={data.business}
           categories={sortedCategories}
+          allItems={publishedItems}
           visibleSections={visibleSections}
           activeCategoryId={activeCategoryId}
+          viewMode={klasikViewMode}
           onSelectCategory={handleSelectCategory}
+          onBackToCategories={handleBackToKlasikCategories}
           searchOpen={searchOpen}
           onToggleSearch={handleToggleSearch}
           searchQuery={searchQuery}
@@ -467,6 +631,7 @@ export function GuestMenuClient({
           isSearching={isSearching}
           totalMatches={totalMatches}
           onSelectItem={handleSelectItem}
+          language={effectiveLanguage}
           navRef={navRef}
           stickyTopOffset={switcherHeight}
         />
@@ -485,6 +650,7 @@ export function GuestMenuClient({
           isSearching={isSearching}
           totalMatches={totalMatches}
           onSelectItem={handleSelectItem}
+          language={effectiveLanguage}
         />
       ) : activeTheme === "canli" ? (
         <CanliMenuView
@@ -502,6 +668,7 @@ export function GuestMenuClient({
           isSearching={isSearching}
           totalMatches={totalMatches}
           onSelectItem={handleSelectItem}
+          language={effectiveLanguage}
           navRef={navRef}
           stickyTopOffset={switcherHeight}
         />
@@ -520,12 +687,17 @@ export function GuestMenuClient({
           isSearching={isSearching}
           totalMatches={totalMatches}
           onSelectItem={handleSelectItem}
+          language={effectiveLanguage}
           navRef={navRef}
           stickyTopOffset={switcherHeight}
         />
       ) : (
-        <div className="min-h-screen bg-[#F6F4EE] text-[#171714]">
-          <MenuHeader business={data.business} />
+        <div className="min-h-screen bg-[var(--menu-bg)] text-[var(--menu-text)]">
+          <MenuHeader
+            business={data.business}
+            description={localizedBusinessDesc}
+            language={effectiveLanguage}
+          />
 
           <CategoryNav
             categories={sortedCategories}
@@ -536,25 +708,21 @@ export function GuestMenuClient({
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             onClearSearch={handleClearSearch}
+            language={effectiveLanguage}
             navRef={navRef}
             stickyTopOffset={switcherHeight}
           />
 
           <main className="mx-auto w-full max-w-[820px] px-4 pt-3 pb-16 md:px-8 md:pt-6">
             {isSearching && (
-              <div className="mb-4 flex items-center justify-between border-b border-[#DCD8CC] pb-2.5 text-[13px] text-[#595950]">
-                <span>
-                  <strong className="font-semibold text-[#171714]">
-                    “{searchQuery.trim()}”
-                  </strong>{" "}
-                  için {totalMatches} sonuç gösteriliyor
-                </span>
+              <div className="mb-4 flex items-center justify-between border-b border-[var(--menu-border)] pb-2.5 text-[13px] text-[var(--menu-text-secondary)]">
+                <span>{dict.search.resultsForQuery(trimmedQuery, totalMatches)}</span>
                 <button
                   type="button"
                   onClick={handleClearSearch}
-                  className="font-medium text-[#2448D8] hover:underline"
+                  className="font-medium text-[var(--menu-accent)] hover:underline"
                 >
-                  Temizle
+                  {dict.nav.clear}
                 </button>
               </div>
             )}
@@ -562,83 +730,89 @@ export function GuestMenuClient({
             {visibleSections.length === 0 ? (
               <section
                 aria-live="polite"
-                className="my-6 border border-[#171714] px-5 py-8 text-left"
+                className="my-6 border border-[var(--menu-border-strong)] bg-[var(--menu-surface)] px-5 py-8 text-left"
               >
-                <p className="text-[11.5px] font-semibold tracking-[0.08em] uppercase text-[#595950]">
-                  Arama Sonucu
+                <p className="text-[11.5px] font-semibold tracking-[0.08em] uppercase text-[var(--menu-text-secondary)]">
+                  {dict.search.eyebrow}
                 </p>
-                <h2 className="mt-1.5 font-display text-[28px] leading-[1.08] font-bold text-[#171714]">
-                  Aramanızla eşleşen ürün bulunamadı.
+                <h2 className="mt-1.5 font-display text-[28px] leading-[1.08] font-bold text-[var(--menu-text)]">
+                  {dict.search.emptyTitle}
                 </h2>
-                <p className="mt-2 max-w-[46ch] text-[14px] leading-[1.55] text-[#595950]">
-                  “{searchQuery.trim()}” için menüde bir ürün yer almıyor.
-                  Farklı bir sözcük deneyebilir veya tüm menüye geri
-                  dönebilirsiniz.
+                <p className="mt-2 max-w-[46ch] text-[14px] leading-[1.55] text-[var(--menu-text-secondary)]">
+                  {dict.search.emptySubtitleAll}
                 </p>
                 <button
                   type="button"
                   onClick={handleClearSearch}
-                  className="mt-5 inline-flex items-center border border-[#171714] px-4 py-2 text-[13.5px] font-medium text-[#171714] transition-colors duration-150 hover:border-[#2448D8] hover:text-[#2448D8]"
+                  className="mt-5 inline-flex items-center border border-[var(--menu-border-strong)] px-4 py-2 text-[13.5px] font-medium text-[var(--menu-text)] transition-colors duration-150 hover:border-[var(--menu-accent)] hover:text-[var(--menu-accent)]"
                 >
-                  Tüm menüyü göster
+                  {dict.nav.showAllMenu}
                 </button>
               </section>
             ) : (
               <div className="space-y-8 md:space-y-10">
-                {visibleSections.map((section) => (
-                  <section
-                    key={section.category.id}
-                    id={`kategori-${section.category.id}`}
-                    ref={(el) => {
-                      sectionRefs.current[section.category.id] = el;
-                    }}
-                    style={{
-                      scrollMarginTop: `${totalStickyOffset + 14}px`,
-                    }}
-                    aria-labelledby={`heading-${section.category.id}`}
-                  >
-                    <div className="border-b border-[#171714] pt-1 pb-2">
-                      <div className="flex items-baseline gap-2.5">
-                        <span className="shrink-0 text-[12px] font-semibold tabular-nums tracking-[0.08em] text-[#2448D8]">
-                          {section.orderLabel}
-                        </span>
-                        <h2
-                          id={`heading-${section.category.id}`}
-                          className="font-display text-[24px] leading-[1.06] font-bold tracking-[-0.005em] text-[#171714] md:text-[30px]"
-                        >
-                          {section.category.name}
-                        </h2>
-                      </div>
-                    </div>
+                {visibleSections.map((section) => {
+                  const catText = getCategoryText(
+                    section.category,
+                    effectiveLanguage
+                  );
 
-                    <div>
-                      {section.items.map((item) => (
-                        <MenuItemRow
-                          key={item.id}
-                          item={item}
-                          onSelect={handleSelectItem}
-                        />
-                      ))}
-                    </div>
-                  </section>
-                ))}
+                  return (
+                    <section
+                      key={section.category.id}
+                      id={`kategori-${section.category.id}`}
+                      ref={(el) => {
+                        sectionRefs.current[section.category.id] = el;
+                      }}
+                      style={{
+                        scrollMarginTop: `${totalStickyOffset + 14}px`,
+                      }}
+                      aria-labelledby={`heading-${section.category.id}`}
+                    >
+                      <div className="border-b border-[var(--menu-border-strong)] pt-1 pb-2">
+                        <div className="flex items-baseline gap-2.5">
+                          <span className="shrink-0 text-[12px] font-semibold tabular-nums tracking-[0.08em] text-[var(--menu-accent)]">
+                            {section.orderLabel}
+                          </span>
+                          <h2
+                            id={`heading-${section.category.id}`}
+                            className="font-display text-[24px] leading-[1.06] font-bold tracking-[-0.005em] text-[var(--menu-text)] md:text-[30px]"
+                          >
+                            {catText.name}
+                          </h2>
+                        </div>
+                      </div>
+
+                      <div>
+                        {section.items.map((item) => (
+                          <MenuItemRow
+                            key={item.id}
+                            item={item}
+                            onSelect={handleSelectItem}
+                            language={effectiveLanguage}
+                          />
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })}
               </div>
             )}
           </main>
 
           <footer className="mx-auto w-full max-w-[820px] px-4 pb-10 md:px-8">
-            <div className="border-t border-[#171714] pt-4 text-[12.5px] text-[#595950]">
+            <div className="border-t border-[var(--menu-border-strong)] pt-4 text-[12.5px] text-[var(--menu-text-secondary)]">
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
                 <span>
                   {data.business.name} · {data.business.address} ·{" "}
                   <a
                     href={data.business.phoneHref}
-                    className="text-[#171714] underline decoration-[#DCD8CC] underline-offset-2 hover:text-[#2448D8]"
+                    className="text-[var(--menu-text)] underline decoration-[var(--menu-border)] underline-offset-2 hover:text-[var(--menu-accent)]"
                   >
                     {data.business.phone}
                   </a>
                 </span>
-                <span>Fiyatlara KDV dahildir.</span>
+                <span>{dict.meta.vatIncluded}</span>
               </div>
             </div>
           </footer>
@@ -650,7 +824,8 @@ export function GuestMenuClient({
         categoryName={selectedCategoryName}
         onClose={handleCloseModal}
         theme={activeTheme}
+        language={effectiveLanguage}
       />
-    </>
+    </div>
   );
 }

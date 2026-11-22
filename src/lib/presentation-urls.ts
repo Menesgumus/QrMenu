@@ -1,4 +1,4 @@
-import type { MenuThemeId } from "@/types/menu";
+import type { ColorMode, MenuLanguage, MenuThemeId } from "@/types/menu";
 
 export const VALID_MENU_THEMES: readonly MenuThemeId[] = [
   "ozel",
@@ -8,6 +8,18 @@ export const VALID_MENU_THEMES: readonly MenuThemeId[] = [
   "klasik",
   "vitrin",
 ];
+
+export const VALID_LANGUAGES: readonly MenuLanguage[] = ["tr", "en"];
+
+export const VALID_COLOR_MODES: readonly ColorMode[] = ["light", "dark"];
+
+/**
+ * Returns the built-in default color mode for each theme when neither URL nor
+ * an explicit visitor preference specifies one.
+ */
+export function getDefaultColorMode(themeId: MenuThemeId): ColorMode {
+  return themeId === "gece" ? "dark" : "light";
+}
 
 /**
  * Validates the `tasarim` query parameter and returns a known theme id,
@@ -20,6 +32,34 @@ export function resolveMenuThemeParam(
   if (!candidate) return undefined;
   return VALID_MENU_THEMES.includes(candidate as MenuThemeId)
     ? (candidate as MenuThemeId)
+    : undefined;
+}
+
+/**
+ * Validates the `dil` query parameter and returns `"tr" | "en"`,
+ * or `undefined` when missing/invalid.
+ */
+export function resolveLanguageParam(
+  value: string | string[] | undefined
+): MenuLanguage | undefined {
+  const candidate = Array.isArray(value) ? value[0] : value;
+  if (!candidate) return undefined;
+  return VALID_LANGUAGES.includes(candidate as MenuLanguage)
+    ? (candidate as MenuLanguage)
+    : undefined;
+}
+
+/**
+ * Validates the `mod` query parameter and returns `"light" | "dark"`,
+ * or `undefined` when missing/invalid.
+ */
+export function resolveColorModeParam(
+  value: string | string[] | undefined
+): ColorMode | undefined {
+  const candidate = Array.isArray(value) ? value[0] : value;
+  if (!candidate) return undefined;
+  return VALID_COLOR_MODES.includes(candidate as ColorMode)
+    ? (candidate as ColorMode)
     : undefined;
 }
 
@@ -91,15 +131,36 @@ export function isLocalOrLoopbackUrl(rawUrl: string): boolean {
   }
 }
 
+export interface ShareUrlOptions {
+  language?: MenuLanguage;
+  colorMode?: ColorMode;
+}
+
+function buildThemeQueryString(
+  themeId: MenuThemeId,
+  options?: ShareUrlOptions
+): string {
+  const params = new URLSearchParams();
+  params.set("tasarim", themeId);
+  if (options?.language) {
+    params.set("dil", options.language);
+  }
+  if (options?.colorMode) {
+    params.set("mod", options.colorMode);
+  }
+  return params.toString();
+}
+
 /**
  * Builds the subpath-safe presentation link (with theme switcher enabled).
  */
 export function buildPresentationUrl(
   baseUrl: string,
-  themeId: MenuThemeId
+  themeId: MenuThemeId,
+  options?: ShareUrlOptions
 ): string {
   const normalized = normalizeBaseUrl(baseUrl);
-  return `${normalized}/?tasarim=${themeId}`;
+  return `${normalized}/?${buildThemeQueryString(themeId, options)}`;
 }
 
 /**
@@ -108,8 +169,9 @@ export function buildPresentationUrl(
 export function buildCustomerUrl(
   baseUrl: string,
   slug: string,
-  themeId: MenuThemeId
+  themeId: MenuThemeId,
+  options?: ShareUrlOptions
 ): string {
   const normalized = normalizeBaseUrl(baseUrl);
-  return `${normalized}/m/${slug}?tasarim=${themeId}`;
+  return `${normalized}/m/${slug}?${buildThemeQueryString(themeId, options)}`;
 }

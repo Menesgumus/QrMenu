@@ -3,7 +3,11 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { GuestMenuClient } from "@/components/guest-menu/GuestMenuClient";
 import { PROTOTYPE_MENU } from "@/data/prototype-menu";
-import { resolveMenuThemeParam } from "@/lib/presentation-urls";
+import {
+  resolveColorModeParam,
+  resolveLanguageParam,
+  resolveMenuThemeParam,
+} from "@/lib/presentation-urls";
 
 export function generateStaticParams() {
   return [{ slug: PROTOTYPE_MENU.business.slug }];
@@ -41,11 +45,15 @@ async function ResolvedBusinessMenu({
 
   const query = await searchParams;
   const requestedTheme = resolveMenuThemeParam(query.tasarim);
+  const requestedLanguage = resolveLanguageParam(query.dil);
+  const requestedColorMode = resolveColorModeParam(query.mod);
 
   return (
     <GuestMenuClient
       data={PROTOTYPE_MENU}
       initialTheme={requestedTheme ?? PROTOTYPE_MENU.business.defaultTheme}
+      explicitUrlLanguage={requestedLanguage}
+      explicitUrlColorMode={requestedColorMode}
       showThemeSwitcher={false}
     />
   );
@@ -58,7 +66,7 @@ export default function BusinessMenuPage({
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#F6F4EE] px-4 py-12 text-center text-[14px] text-[#595950]">
+        <div className="min-h-screen bg-[var(--menu-bg)] px-4 py-12 text-center text-[14px] text-[var(--menu-text-secondary)]">
           Menü yükleniyor…
         </div>
       }

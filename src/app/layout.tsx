@@ -9,6 +9,7 @@ import {
   Outfit,
   Plus_Jakarta_Sans,
 } from "next/font/google";
+import { buildBootstrapThemeScript } from "@/lib/visitor-preferences";
 import "./globals.css";
 
 const barlowCondensed = Barlow_Condensed({
@@ -83,9 +84,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="tr"
+      data-menu-theme="ozel"
+      data-color-mode="light"
+      suppressHydrationWarning
       className={`${barlowCondensed.variable} ${ibmPlexSans.variable} ${plusJakartaSans.variable} ${fraunces.variable} ${bricolageGrotesque.variable} ${inter.variable} ${dmSans.variable} ${outfit.variable} h-full`}
     >
-      <body className="min-h-full bg-[#F6F4EE] text-[#171714] font-sans selection:bg-[#2448D8]/15 selection:text-[#171714]">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: buildBootstrapThemeScript(),
+          }}
+        />
+      </head>
+      <body className="min-h-full bg-[var(--menu-bg)] text-[var(--menu-text)] font-sans selection:bg-[var(--menu-selection-bg)] selection:text-[var(--menu-selection-text)]">
         {children}
       </body>
     </html>

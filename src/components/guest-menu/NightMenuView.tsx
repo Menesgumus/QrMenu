@@ -3,7 +3,18 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { formatPriceTRY } from "@/lib/format";
-import type { BusinessProfile, MenuCategory, MenuItem } from "@/types/menu";
+import {
+  getBusinessDescription,
+  getCategoryText,
+  getItemText,
+  getUiDictionary,
+} from "@/lib/i18n";
+import type {
+  BusinessProfile,
+  MenuCategory,
+  MenuItem,
+  MenuLanguage,
+} from "@/types/menu";
 import { BrandMark } from "./BrandMark";
 
 export interface MenuSectionGroup {
@@ -26,6 +37,7 @@ interface NightMenuViewProps {
   isSearching: boolean;
   totalMatches: number;
   onSelectItem: (item: MenuItem, triggerEl: HTMLButtonElement) => void;
+  language: MenuLanguage;
   navRef: React.RefObject<HTMLDivElement | null>;
   stickyTopOffset?: number;
 }
@@ -44,12 +56,17 @@ export function NightMenuView({
   isSearching,
   totalMatches,
   onSelectItem,
+  language,
   navRef,
   stickyTopOffset = 0,
 }: NightMenuViewProps) {
   const scrollStripRef = useRef<HTMLDivElement | null>(null);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
+
+  const dict = getUiDictionary(language);
+  const localizedBusinessDesc = getBusinessDescription(business, language);
+  const trimmedQuery = searchQuery.trim();
 
   useEffect(() => {
     const strip = scrollStripRef.current;
@@ -126,33 +143,40 @@ export function NightMenuView({
       style={{
         fontFamily: "var(--font-visual-sans), system-ui, sans-serif",
       }}
-      className="min-h-screen bg-[#171918] text-[#F5F1E8] font-night-sans"
+      className="min-h-screen bg-[var(--menu-bg)] text-[var(--menu-text)] font-night-sans"
     >
       {/* Mobil Kompakt İşletme Başlığı */}
-      <header className="border-b border-[#2C302D] px-4 pt-3.5 pb-3 lg:hidden">
+      <header className="border-b border-[var(--menu-border)] px-4 pt-3.5 pb-3 lg:hidden">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[6px] bg-[#F5F1E8] p-1">
+          <div
+            style={{
+              backgroundColor: "var(--menu-logo-bg)",
+              borderColor: "var(--menu-logo-border)",
+              color: "var(--menu-logo-ink)",
+            }}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[6px] border p-1"
+          >
             <BrandMark className="h-8 w-8" />
           </div>
           <div className="min-w-0 flex-1">
             <h1
               style={nightDisplayFont}
-              className="font-night-display text-[23px] leading-[1.12] font-semibold tracking-[-0.01em] text-[#F5F1E8]"
+              className="font-night-display text-[23px] leading-[1.12] font-semibold tracking-[-0.01em] text-[var(--menu-text)]"
             >
               {business.name}
             </h1>
-            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11.5px] text-[#B9BDB6]">
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11.5px] text-[var(--menu-text-secondary)]">
               <span>{business.address}</span>
-              <span aria-hidden="true" className="text-[#454A47]">
+              <span aria-hidden="true" className="opacity-50">
                 ·
               </span>
               <span className="tabular-nums">{business.hours}</span>
-              <span aria-hidden="true" className="text-[#454A47]">
+              <span aria-hidden="true" className="opacity-50">
                 ·
               </span>
               <a
                 href={business.phoneHref}
-                className="font-medium tabular-nums text-[#F5F1E8] hover:text-[#F28B50]"
+                className="font-medium tabular-nums text-[var(--menu-text)] hover:text-[var(--menu-accent)]"
               >
                 {business.phone}
               </a>
@@ -164,21 +188,24 @@ export function NightMenuView({
       {/* Mobil Sabit Kısa Kategori Gezinmesi ve Arama */}
       <div
         ref={navRef}
-        style={{ top: `${stickyTopOffset}px` }}
-        className="sticky z-30 border-b border-[#2C302D] bg-[#171918]/95 backdrop-blur-sm lg:hidden"
+        style={{
+          top: `${stickyTopOffset}px`,
+          backgroundColor: "var(--menu-bg-glass)",
+        }}
+        className="sticky z-30 border-b border-[var(--menu-border)] backdrop-blur-sm lg:hidden"
       >
         <div className="flex items-center gap-2 px-4 py-2">
           <div className="relative min-w-0 flex-1">
             <nav
               ref={scrollStripRef}
-              aria-label="Menü kategorileri"
+              aria-label={dict.nav.categoriesLabel}
               className={`no-scrollbar flex w-full items-center gap-1.5 overflow-x-auto ${
                 canScrollRight ? "pr-7" : ""
               }`}
             >
               {categories.map((category) => {
                 const isActive = category.id === activeCategoryId && !isSearching;
-                const label = category.shortLabel ?? category.name;
+                const { shortLabel } = getCategoryText(category, language);
 
                 return (
                   <button
@@ -192,13 +219,13 @@ export function NightMenuView({
                       onSelectCategory(category.id);
                     }}
                     aria-current={isActive ? "true" : undefined}
-                    className={`shrink-0 rounded-full border px-3.5 py-1.5 text-[12.5px] whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F28B50] ${
+                    className={`shrink-0 rounded-full border px-3.5 py-1.5 text-[12.5px] whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] ${
                       isActive
-                        ? "border-[#F28B50] bg-[#F28B50] font-semibold text-[#171918]"
-                        : "border-[#323633] bg-[#242725] font-medium text-[#B9BDB6] hover:border-[#F5F1E8]/35 hover:text-[#F5F1E8]"
+                        ? "border-[var(--menu-accent)] bg-[var(--menu-accent)] font-semibold text-[var(--menu-accent-contrast)]"
+                        : "border-[var(--menu-border)] bg-[var(--menu-surface)] font-medium text-[var(--menu-text-secondary)] hover:border-[var(--menu-border-strong)] hover:text-[var(--menu-text)]"
                     }`}
                   >
-                    {label}
+                    {shortLabel}
                   </button>
                 );
               })}
@@ -207,9 +234,9 @@ export function NightMenuView({
             {canScrollLeft && (
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-y-0 left-0 flex w-6 items-center bg-gradient-to-r from-[#171918] via-[#171918]/85 to-transparent"
+                className="pointer-events-none absolute inset-y-0 left-0 flex w-6 items-center bg-gradient-to-r from-[var(--menu-bg)] via-[var(--menu-bg-glass)] to-transparent"
               >
-                <span className="text-[13px] leading-none font-semibold text-[#B9BDB6]">
+                <span className="text-[13px] leading-none font-semibold text-[var(--menu-text-secondary)]">
                   ‹
                 </span>
               </div>
@@ -218,9 +245,9 @@ export function NightMenuView({
             {canScrollRight && (
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-y-0 right-0 flex w-8 items-center justify-end bg-gradient-to-l from-[#171918] via-[#171918]/90 to-transparent pr-0.5"
+                className="pointer-events-none absolute inset-y-0 right-0 flex w-8 items-center justify-end bg-gradient-to-l from-[var(--menu-bg)] via-[var(--menu-bg-glass)] to-transparent pr-0.5"
               >
-                <span className="text-[13px] leading-none font-semibold text-[#F28B50]">
+                <span className="text-[13px] leading-none font-semibold text-[var(--menu-accent)]">
                   ›
                 </span>
               </div>
@@ -232,10 +259,10 @@ export function NightMenuView({
             onClick={onToggleSearch}
             aria-expanded={searchOpen}
             aria-controls="night-menu-search-panel"
-            className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-medium whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F28B50] ${
+            className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-medium whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] ${
               searchOpen || isSearching
-                ? "border-[#F28B50] bg-[#F28B50] font-semibold text-[#171918]"
-                : "border-[#323633] bg-[#242725] text-[#F5F1E8] hover:border-[#F5F1E8]/40"
+                ? "border-[var(--menu-accent)] bg-[var(--menu-accent)] font-semibold text-[var(--menu-accent-contrast)]"
+                : "border-[var(--menu-border)] bg-[var(--menu-surface)] text-[var(--menu-text)] hover:border-[var(--menu-border-strong)]"
             }`}
           >
             <svg
@@ -259,18 +286,18 @@ export function NightMenuView({
                 strokeLinecap="round"
               />
             </svg>
-            <span>Ara</span>
+            <span>{dict.nav.searchButton}</span>
           </button>
         </div>
 
         {searchOpen && (
           <div
             id="night-menu-search-panel"
-            className="border-t border-[#2C302D] bg-[#1F2220]"
+            className="border-t border-[var(--menu-border)] bg-[var(--menu-surface-muted)]"
           >
             <div className="flex items-center gap-2 px-4 py-2">
               <label htmlFor="night-mobile-search-input" className="sr-only">
-                Menüde ürün ara
+                {dict.nav.searchInputLabel}
               </label>
               <input
                 ref={mobileSearchInputRef}
@@ -287,24 +314,24 @@ export function NightMenuView({
                     }
                   }
                 }}
-                placeholder="Tüm menüde ara (ör. hellim, kahve, tart)..."
-                className="min-w-0 flex-1 rounded-[6px] border border-[#343835] bg-[#171918] px-3 py-1.5 text-[13.5px] text-[#F5F1E8] placeholder:text-[#B9BDB6]/65 focus:border-[#F28B50] focus:outline-none"
+                placeholder={dict.nav.searchPlaceholder}
+                className="min-w-0 flex-1 rounded-[6px] border border-[var(--menu-border-strong)] bg-[var(--menu-bg)] px-3 py-1.5 text-[13.5px] text-[var(--menu-text)] placeholder:text-[var(--menu-text-secondary)] focus:border-[var(--menu-accent)] focus:outline-none"
               />
               {searchQuery.length > 0 && (
                 <button
                   type="button"
                   onClick={onClearSearch}
-                  className="shrink-0 px-2 py-1.5 text-[12.5px] font-medium text-[#B9BDB6] hover:text-[#F5F1E8]"
+                  className="shrink-0 px-2 py-1.5 text-[12.5px] font-medium text-[var(--menu-text-secondary)] hover:text-[var(--menu-text)]"
                 >
-                  Temizle
+                  {dict.nav.clear}
                 </button>
               )}
               <button
                 type="button"
                 onClick={onToggleSearch}
-                className="shrink-0 px-1.5 py-1.5 text-[12.5px] font-semibold text-[#F28B50] hover:text-[#F5F1E8]"
+                className="shrink-0 px-1.5 py-1.5 text-[12.5px] font-semibold text-[var(--menu-accent)] hover:text-[var(--menu-text)]"
               >
-                Kapat
+                {dict.nav.close}
               </button>
             </div>
           </div>
@@ -313,35 +340,41 @@ export function NightMenuView({
 
       {/* Ana Düzen: Masaüstünde Sol Sabit Gezinme + Sağda Ürün Izgarası */}
       <div className="mx-auto w-full max-w-[1220px] px-4 pt-4 pb-16 md:px-8 lg:grid lg:grid-cols-[276px_minmax(0,1fr)] lg:items-start lg:gap-10 lg:pt-8">
-        {/* Masaüstü Sol Sabit Kenar Çubuğu */}
         <aside
           className="hidden lg:sticky lg:block"
           style={{ top: `${stickyTopOffset + 24}px` }}
         >
-          <div className="rounded-[10px] border border-[#2F3330] bg-[#242725] p-5">
+          <div className="rounded-[10px] border border-[var(--menu-border)] bg-[var(--menu-surface)] p-5">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[6px] bg-[#F5F1E8] p-1">
+              <div
+                style={{
+                  backgroundColor: "var(--menu-logo-bg)",
+                  borderColor: "var(--menu-logo-border)",
+                  color: "var(--menu-logo-ink)",
+                }}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[6px] border p-1"
+              >
                 <BrandMark className="h-8 w-8" />
               </div>
               <h1
                 style={nightDisplayFont}
-                className="font-night-display text-[25px] leading-[1.1] font-semibold tracking-[-0.01em] text-[#F5F1E8]"
+                className="font-night-display text-[25px] leading-[1.1] font-semibold tracking-[-0.01em] text-[var(--menu-text)]"
               >
                 {business.name}
               </h1>
             </div>
 
-            <p className="mt-3 text-[13.5px] leading-[1.55] text-[#B9BDB6]">
-              {business.description}
+            <p className="mt-3 text-[13.5px] leading-[1.55] text-[var(--menu-text-secondary)]">
+              {localizedBusinessDesc}
             </p>
 
-            <div className="mt-4 space-y-1 border-t border-[#333734] pt-3 text-[12.5px] text-[#B9BDB6]">
+            <div className="mt-4 space-y-1 border-t border-[var(--menu-border)] pt-3 text-[12.5px] text-[var(--menu-text-secondary)]">
               <p>{business.address}</p>
               <p className="tabular-nums">
                 {business.hours} ·{" "}
                 <a
                   href={business.phoneHref}
-                  className="font-medium text-[#F5F1E8] hover:text-[#F28B50]"
+                  className="font-medium text-[var(--menu-text)] hover:text-[var(--menu-accent)]"
                 >
                   {business.phone}
                 </a>
@@ -351,7 +384,7 @@ export function NightMenuView({
 
           <div className="mt-4">
             <label htmlFor="night-desktop-search-input" className="sr-only">
-              Tüm menüde ara
+              {dict.nav.searchInputLabel}
             </label>
             <div className="relative">
               <input
@@ -364,30 +397,30 @@ export function NightMenuView({
                     onClearSearch();
                   }
                 }}
-                placeholder="Tüm menüde ara…"
-                className="w-full rounded-[8px] border border-[#323633] bg-[#242725] py-2 pr-16 pl-3.5 text-[13.5px] text-[#F5F1E8] placeholder:text-[#B9BDB6]/65 focus:border-[#F28B50] focus:outline-none"
+                placeholder={dict.nav.searchPlaceholderShort}
+                className="w-full rounded-[8px] border border-[var(--menu-border)] bg-[var(--menu-surface)] py-2 pr-16 pl-3.5 text-[13.5px] text-[var(--menu-text)] placeholder:text-[var(--menu-text-secondary)] focus:border-[var(--menu-accent)] focus:outline-none"
               />
               {searchQuery.length > 0 && (
                 <button
                   type="button"
                   onClick={onClearSearch}
-                  className="absolute top-1/2 right-2.5 -translate-y-1/2 text-[12px] font-medium text-[#F28B50] hover:text-[#F5F1E8]"
+                  className="absolute top-1/2 right-2.5 -translate-y-1/2 text-[12px] font-medium text-[var(--menu-accent)] hover:text-[var(--menu-text)]"
                 >
-                  Temizle
+                  {dict.nav.clear}
                 </button>
               )}
             </div>
           </div>
 
-          <nav aria-label="Menü kategorileri" className="mt-5">
-            <p className="px-2 pb-2 text-[11px] font-semibold tracking-[0.1em] uppercase text-[#B9BDB6]/75">
-              Kategoriler
+          <nav aria-label={dict.nav.categoriesLabel} className="mt-5">
+            <p className="px-2 pb-2 text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--menu-text-secondary)]">
+              {dict.nav.categoriesPill}
             </p>
             <ul className="space-y-1">
               {categories.map((category, idx) => {
-                const isActive =
-                  category.id === activeCategoryId && !isSearching;
+                const isActive = category.id === activeCategoryId && !isSearching;
                 const orderLabel = String(idx + 1).padStart(2, "0");
+                const { name } = getCategoryText(category, language);
 
                 return (
                   <li key={category.id}>
@@ -398,20 +431,22 @@ export function NightMenuView({
                         onSelectCategory(category.id);
                       }}
                       aria-current={isActive ? "true" : undefined}
-                      className={`flex w-full items-start gap-2.5 rounded-[8px] px-3 py-2.5 text-left text-[13.5px] leading-[1.32] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F28B50] ${
+                      className={`flex w-full items-start gap-2.5 rounded-[8px] px-3 py-2.5 text-left text-[13.5px] leading-[1.32] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] ${
                         isActive
-                          ? "bg-[#F28B50] font-semibold text-[#171918]"
-                          : "font-medium text-[#B9BDB6] hover:bg-[#242725] hover:text-[#F5F1E8]"
+                          ? "bg-[var(--menu-accent)] font-semibold text-[var(--menu-accent-contrast)]"
+                          : "font-medium text-[var(--menu-text-secondary)] hover:bg-[var(--menu-surface)] hover:text-[var(--menu-text)]"
                       }`}
                     >
                       <span
                         className={`mt-[1px] shrink-0 text-[11.5px] tabular-nums ${
-                          isActive ? "text-[#171918]/80" : "text-[#F28B50]"
+                          isActive
+                            ? "text-[var(--menu-accent-contrast)] opacity-85"
+                            : "text-[var(--menu-accent)]"
                         }`}
                       >
                         {orderLabel}
                       </span>
-                      <span className="min-w-0 flex-1">{category.name}</span>
+                      <span className="min-w-0 flex-1">{name}</span>
                     </button>
                   </li>
                 );
@@ -423,19 +458,14 @@ export function NightMenuView({
         {/* Ürün Alanı */}
         <main className="min-w-0">
           {isSearching && (
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-[#2C302D] pb-3 text-[13px] text-[#B9BDB6]">
-              <span>
-                <strong className="font-semibold text-[#F5F1E8]">
-                  “{searchQuery.trim()}”
-                </strong>{" "}
-                için tüm menüde {totalMatches} sonuç bulundu
-              </span>
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--menu-border)] pb-3 text-[13px] text-[var(--menu-text-secondary)]">
+              <span>{dict.search.resultsInMenu(trimmedQuery, totalMatches)}</span>
               <button
                 type="button"
                 onClick={onClearSearch}
-                className="font-semibold text-[#F28B50] hover:underline"
+                className="font-semibold text-[var(--menu-accent)] hover:underline"
               >
-                Aramayı temizle
+                {dict.nav.clearSearch}
               </button>
             </div>
           )}
@@ -443,125 +473,129 @@ export function NightMenuView({
           {sectionsToRender.length === 0 ? (
             <section
               aria-live="polite"
-              className="rounded-[10px] border border-[#323633] bg-[#242725] px-5 py-8 text-left"
+              className="rounded-[10px] border border-[var(--menu-border)] bg-[var(--menu-surface)] px-5 py-8 text-left"
             >
-              <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#F28B50]">
-                Arama Sonucu
+              <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--menu-accent)]">
+                {dict.search.eyebrow}
               </p>
               <h2
                 style={nightDisplayFont}
-                className="mt-1.5 font-night-display text-[24px] leading-[1.2] font-semibold text-[#F5F1E8]"
+                className="mt-1.5 font-night-display text-[24px] leading-[1.2] font-semibold text-[var(--menu-text)]"
               >
-                Aramanızla eşleşen ürün bulunamadı.
+                {dict.search.emptyTitle}
               </h2>
-              <p className="mt-2 max-w-[46ch] text-[14px] leading-[1.55] text-[#B9BDB6]">
-                “{searchQuery.trim()}” için menüde bir ürün yer almıyor. Farklı
-                bir sözcük deneyebilir veya seçili kategoriye dönebilirsiniz.
+              <p className="mt-2 max-w-[46ch] text-[14px] leading-[1.55] text-[var(--menu-text-secondary)]">
+                {dict.search.emptySubtitleAll}
               </p>
               <button
                 type="button"
                 onClick={onClearSearch}
-                className="mt-5 inline-flex items-center rounded-[6px] bg-[#F28B50] px-4 py-2 text-[13px] font-semibold text-[#171918] transition-colors duration-150 hover:bg-[#f59c69]"
+                className="mt-5 inline-flex items-center rounded-[6px] bg-[var(--menu-accent)] px-4 py-2 text-[13px] font-semibold text-[var(--menu-accent-contrast)] transition-colors duration-150 hover:bg-[var(--menu-accent-hover)]"
               >
-                Tüm menüyü göster
+                {dict.nav.showAllMenu}
               </button>
             </section>
           ) : (
             <div className="space-y-8">
-              {sectionsToRender.map((section) => (
-                <section
-                  key={section.category.id}
-                  id={`night-kategori-${section.category.id}`}
-                  aria-labelledby={`night-heading-${section.category.id}`}
-                >
-                  <div className="flex items-end justify-between gap-4 border-b border-[#2C302D] pb-3">
-                    <div>
-                      <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#F28B50]">
-                        {section.orderLabel}
-                        {section.category.shortLabel ? (
+              {sectionsToRender.map((section) => {
+                const catText = getCategoryText(section.category, language);
+
+                return (
+                  <section
+                    key={section.category.id}
+                    id={`night-kategori-${section.category.id}`}
+                    aria-labelledby={`night-heading-${section.category.id}`}
+                  >
+                    <div className="flex items-end justify-between gap-4 border-b border-[var(--menu-border)] pb-3">
+                      <div>
+                        <p className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--menu-accent)]">
+                          {section.orderLabel}
+                          {catText.shortLabel ? (
+                            <span className="hidden lg:inline">
+                              {` · ${catText.shortLabel}`}
+                            </span>
+                          ) : null}
+                        </p>
+                        <h2
+                          id={`night-heading-${section.category.id}`}
+                          style={nightDisplayFont}
+                          className="mt-1 font-night-display text-[24px] leading-[1.16] font-semibold tracking-[-0.01em] text-[var(--menu-text)] md:text-[30px]"
+                        >
+                          <span className="lg:hidden">{catText.shortLabel}</span>
                           <span className="hidden lg:inline">
-                            {` · ${section.category.shortLabel}`}
+                            {catText.name}
                           </span>
-                        ) : null}
-                      </p>
-                      <h2
-                        id={`night-heading-${section.category.id}`}
-                        style={nightDisplayFont}
-                        className="mt-1 font-night-display text-[24px] leading-[1.16] font-semibold tracking-[-0.01em] text-[#F5F1E8] md:text-[30px]"
-                      >
-                        <span className="lg:hidden">
-                          {section.category.shortLabel ?? section.category.name}
-                        </span>
-                        <span className="hidden lg:inline">
-                          {section.category.name}
-                        </span>
-                      </h2>
+                        </h2>
+                      </div>
+                      <span className="shrink-0 text-[12px] font-medium tabular-nums text-[var(--menu-text-secondary)]">
+                        {dict.counts.varieties(section.items.length)}
+                      </span>
                     </div>
-                    <span className="shrink-0 text-[12px] font-medium tabular-nums text-[#B9BDB6]">
-                      {section.items.length} çeşit
-                    </span>
-                  </div>
 
-                  <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-3 lg:gap-5">
-                    {section.items.map((item) => {
-                      const cardLabel = item.displayName ?? item.name;
-                      return (
-                        <article key={item.id} className="flex">
-                          <button
-                            type="button"
-                            onClick={(event) =>
-                              onSelectItem(item, event.currentTarget)
-                            }
-                            className="group flex h-full w-full flex-col overflow-hidden rounded-[8px] border border-[#323633] bg-[#242725] text-left transition-colors duration-150 hover:border-[#F28B50]/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F28B50]"
-                          >
-                            {item.image && (
-                              <div className="relative aspect-square w-full overflow-hidden bg-[#1D201E]">
-                                <Image
-                                  src={item.image.gridUrl}
-                                  alt={item.image.alt}
-                                  fill
-                                  sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 290px"
-                                  unoptimized
-                                  className="object-cover"
-                                />
+                    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-3 lg:gap-5">
+                      {section.items.map((item) => {
+                        const { cardName, imageAlt } = getItemText(
+                          item,
+                          language
+                        );
+
+                        return (
+                          <article key={item.id} className="flex">
+                            <button
+                              type="button"
+                              onClick={(event) =>
+                                onSelectItem(item, event.currentTarget)
+                              }
+                              className="group flex h-full w-full flex-col overflow-hidden rounded-[8px] border border-[var(--menu-border)] bg-[var(--menu-surface)] text-left transition-colors duration-150 hover:border-[var(--menu-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)]"
+                            >
+                              {item.image && (
+                                <div className="relative aspect-square w-full overflow-hidden bg-[var(--menu-surface-muted)]">
+                                  <Image
+                                    src={item.image.gridUrl}
+                                    alt={imageAlt}
+                                    fill
+                                    sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 290px"
+                                    unoptimized
+                                    className="object-cover"
+                                  />
+                                </div>
+                              )}
+
+                              <div className="flex flex-1 flex-col p-3 md:p-4">
+                                <h3 className="text-[14px] leading-[1.32] font-semibold text-[var(--menu-text)] transition-colors duration-150 group-hover:text-[var(--menu-accent)] md:text-[15px]">
+                                  {cardName}
+                                </h3>
+
+                                <p className="mt-auto pt-2.5 text-[15px] leading-[1.2] font-bold tabular-nums text-[var(--menu-accent)] md:text-[16px]">
+                                  {formatPriceTRY(item.priceKurus)}
+                                </p>
                               </div>
-                            )}
-
-                            <div className="flex flex-1 flex-col p-3 md:p-4">
-                              <h3 className="text-[14px] leading-[1.32] font-semibold text-[#F5F1E8] transition-colors duration-150 group-hover:text-[#F28B50] md:text-[15px]">
-                                {cardLabel}
-                              </h3>
-
-                              <p className="mt-auto pt-2.5 text-[15px] leading-[1.2] font-bold tabular-nums text-[#F28B50] md:text-[16px]">
-                                {formatPriceTRY(item.priceKurus)}
-                              </p>
-                            </div>
-                          </button>
-                        </article>
-                      );
-                    })}
-                  </div>
-                </section>
-              ))}
+                            </button>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  </section>
+                );
+              })}
             </div>
           )}
 
-          {/* Mobil ve genel alt bilgi: mobilde tam tanıtım metni burada kesilmeden gösterilir */}
-          <footer className="mt-12 border-t border-[#2C302D] pt-5 text-[12.5px] leading-[1.55] text-[#B9BDB6]">
-            <p className="mb-2 text-[#B9BDB6] lg:hidden">
-              {business.description}
+          <footer className="mt-12 border-t border-[var(--menu-border)] pt-5 text-[12.5px] leading-[1.55] text-[var(--menu-text-secondary)]">
+            <p className="mb-2 text-[var(--menu-text-secondary)] lg:hidden">
+              {localizedBusinessDesc}
             </p>
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <span>
                 {business.name} · {business.address} ·{" "}
                 <a
                   href={business.phoneHref}
-                  className="font-medium text-[#F5F1E8] hover:text-[#F28B50]"
+                  className="font-medium text-[var(--menu-text)] hover:text-[var(--menu-accent)]"
                 >
                   {business.phone}
                 </a>
               </span>
-              <span>Fiyatlara KDV dahildir.</span>
+              <span>{dict.meta.vatIncluded}</span>
             </div>
           </footer>
         </main>

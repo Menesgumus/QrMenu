@@ -6,6 +6,10 @@ export type MenuThemeId =
   | "klasik"
   | "vitrin";
 
+export type ColorMode = "light" | "dark";
+
+export type MenuLanguage = "tr" | "en";
+
 export interface BusinessProfile {
   id: string;
   slug: string;
@@ -16,6 +20,11 @@ export interface BusinessProfile {
   phone: string;
   phoneHref: string;
   defaultTheme: MenuThemeId;
+  translations?: {
+    en?: {
+      description?: string;
+    };
+  };
 }
 
 export interface MenuCategory {
@@ -27,6 +36,13 @@ export interface MenuCategory {
   coverImageAlt?: string;
   coverObjectPosition?: Partial<Record<MenuThemeId, string>>;
   sortOrder: number;
+  translations?: {
+    en?: {
+      name?: string;
+      shortLabel?: string;
+      coverImageAlt?: string;
+    };
+  };
 }
 
 export interface MenuItemImage {
@@ -34,6 +50,7 @@ export interface MenuItemImage {
   gridUrl: string;
   fullUrl: string;
   alt: string;
+  altEn?: string;
   width: number;
   height: number;
   focalPointByTheme?: Partial<Record<MenuThemeId, string>>;
@@ -50,6 +67,13 @@ export interface MenuItem {
   image: MenuItemImage | null;
   isPublished: boolean;
   sortOrder: number;
+  translations?: {
+    en?: {
+      name?: string;
+      displayName?: string;
+      description?: string;
+    };
+  };
 }
 
 export interface GuestMenuData {
