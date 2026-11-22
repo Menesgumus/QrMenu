@@ -26,7 +26,7 @@ Geçersiz veya tanımsız `tasarim` değerlerinde varsayılan olarak `ozel` tasa
 
 - Örnek dosya: [`.env.example`](./.env.example)
 - `NEXT_PUBLIC_PRESENTATION_BASE_URL` değeri Next.js üretim derlemesi (`next build`) sırasında istemci paketine gömülür.
-- Canlı yayın hedefi için varsayılan üretim değeri `https://menu.prilmones.com.tr` olarak yapılandırılabilir (sonunda `/` olmadan; alt dizin varsa yol korunur).
+- Canlı yayın hedefi için varsayılan üretim değeri `*` olarak yapılandırılabilir (sonunda `/` olmadan; alt dizin varsa yol korunur).
 - Yerel geliştirmede tanımlanmazsa uygulama mevcut tarayıcı kökenini kullanır; `localhost` / loopback adreslerinde QR kodları baskıya hazır olmayan yerel önizleme uyarısı ile üretir.
 
 ---
@@ -59,27 +59,27 @@ Tip kontrolü, lint ve üretim derlemesini çalıştırmak için:
 ```bash
 pnpm exec tsc --noEmit
 pnpm lint
-NEXT_PUBLIC_PRESENTATION_BASE_URL=https://menu.prilmones.com.tr pnpm build
+NEXT_PUBLIC_PRESENTATION_BASE_URL=*
 pnpm start
 ```
 
 Windows PowerShell üzerinde üretim ortamı adresiyle derleme yapmak için:
 
 ```powershell
-$env:NEXT_PUBLIC_PRESENTATION_BASE_URL = "https://menu.prilmones.com.tr"
+$env:NEXT_PUBLIC_PRESENTATION_BASE_URL = *
 pnpm build
 pnpm start
 ```
 
 ---
 
-## Docker ve Sunucu Yayını (`menu.prilmones.com.tr`)
+## Docker ve Sunucu Yayını (`*`)
 
 Projede üretim yayını için çok aşamalı `Dockerfile`, `.dockerignore`, `compose.yaml` (`name: qrmenu`) ve `deploy/` altında örnek Nginx + HTTPS kurulum belgeleri yer alır:
 
 - Compose tanımı uygulamayı yalnızca `127.0.0.1:${APP_PORT}:3000` arayüzüne bağlar.
 - `APP_PORT` için sunucuda `ss -tulpn` ile boş olduğu doğrulanmış bir port `.env` içinde tanımlanmalıdır.
-- Nginx ters proxy ve Certbot HTTPS kurulum adımları için [`deploy/KURULUM.md`](./deploy/KURULUM.md) ve [`deploy/nginx-menu.prilmones.com.tr.conf`](./deploy/nginx-menu.prilmones.com.tr.conf) dosyalarını izleyin.
+- Nginx ters proxy ve Certbot HTTPS kurulum adımları için [`deploy/KURULUM.md`](./deploy/KURULUM.md) ve [`*`](*) dosyalarını izleyin.
 
 ---
 
