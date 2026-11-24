@@ -38,10 +38,12 @@ function FerahItemRow({
   item,
   onSelect,
   language,
+  eager = false,
 }: {
   item: MenuItem;
   onSelect: (item: MenuItem, triggerEl: HTMLButtonElement) => void;
   language: MenuLanguage;
+  eager?: boolean;
 }) {
   const dict = getUiDictionary(language);
   const { cardName, description, imageAlt } = getItemText(item, language);
@@ -61,6 +63,7 @@ function FerahItemRow({
             width={96}
             height={96}
             sizes="(min-width: 768px) 96px, 80px"
+            loading={eager ? "eager" : "lazy"}
             unoptimized
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
@@ -280,7 +283,7 @@ export function FerahMenuView({
         ) : (
           /* Dikey Açılır-Kapanır Kategoriler (42-44px kare fotoğraf başlıkta) */
           <div className="space-y-3">
-            {visibleSections.map((section) => {
+            {visibleSections.map((section, secIdx) => {
               const isOpen =
                 isSearching || openCategoryIds.includes(section.category.id);
               const catText = getCategoryText(section.category, language);
@@ -321,6 +324,7 @@ export function FerahMenuView({
                             width={44}
                             height={44}
                             sizes="44px"
+                            loading={secIdx < 6 ? "eager" : "lazy"}
                             unoptimized
                             style={{
                               objectPosition:
@@ -377,12 +381,13 @@ export function FerahMenuView({
                       id={`ferah-panel-${section.category.id}`}
                       className="divide-y divide-[var(--menu-border)] border-t border-[var(--menu-border)] bg-[var(--menu-surface)]"
                     >
-                      {section.items.map((item) => (
+                      {section.items.map((item, itemIdx) => (
                         <FerahItemRow
                           key={item.id}
                           item={item}
                           onSelect={onSelectItem}
                           language={language}
+                          eager={secIdx === 0 && itemIdx < 4}
                         />
                       ))}
                     </div>

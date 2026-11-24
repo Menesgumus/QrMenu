@@ -341,10 +341,13 @@ export function NightMenuView({
       {/* Ana Düzen: Masaüstünde Sol Sabit Gezinme + Sağda Ürün Izgarası */}
       <div className="mx-auto w-full max-w-[1220px] px-4 pt-4 pb-16 md:px-8 lg:grid lg:grid-cols-[276px_minmax(0,1fr)] lg:items-start lg:gap-10 lg:pt-8">
         <aside
-          className="hidden lg:sticky lg:block"
-          style={{ top: `${stickyTopOffset + 24}px` }}
+          className="hidden lg:sticky lg:block lg:overflow-y-auto lg:pr-1 lg:pb-2"
+          style={{
+            top: `${stickyTopOffset + 24}px`,
+            maxHeight: `calc(100dvh - ${stickyTopOffset + 48}px)`,
+          }}
         >
-          <div className="rounded-[10px] border border-[var(--menu-border)] bg-[var(--menu-surface)] p-5">
+          <div className="rounded-[10px] border border-[var(--menu-border)] bg-[var(--menu-surface)] p-4">
             <div className="flex items-start gap-3">
               <div
                 style={{
@@ -358,17 +361,17 @@ export function NightMenuView({
               </div>
               <h1
                 style={nightDisplayFont}
-                className="font-night-display text-[25px] leading-[1.1] font-semibold tracking-[-0.01em] text-[var(--menu-text)]"
+                className="font-night-display text-[24px] leading-[1.1] font-semibold tracking-[-0.01em] text-[var(--menu-text)]"
               >
                 {business.name}
               </h1>
             </div>
 
-            <p className="mt-3 text-[13.5px] leading-[1.55] text-[var(--menu-text-secondary)]">
+            <p className="mt-2.5 text-[13px] leading-[1.48] text-[var(--menu-text-secondary)]">
               {localizedBusinessDesc}
             </p>
 
-            <div className="mt-4 space-y-1 border-t border-[var(--menu-border)] pt-3 text-[12.5px] text-[var(--menu-text-secondary)]">
+            <div className="mt-3 space-y-1 border-t border-[var(--menu-border)] pt-2.5 text-[12px] text-[var(--menu-text-secondary)]">
               <p>{business.address}</p>
               <p className="tabular-nums">
                 {business.hours} ·{" "}
@@ -382,7 +385,7 @@ export function NightMenuView({
             </div>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-3">
             <label htmlFor="night-desktop-search-input" className="sr-only">
               {dict.nav.searchInputLabel}
             </label>
@@ -412,11 +415,11 @@ export function NightMenuView({
             </div>
           </div>
 
-          <nav aria-label={dict.nav.categoriesLabel} className="mt-5">
-            <p className="px-2 pb-2 text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--menu-text-secondary)]">
+          <nav aria-label={dict.nav.categoriesLabel} className="mt-3.5">
+            <p className="px-2 pb-1.5 text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--menu-text-secondary)]">
               {dict.nav.categoriesPill}
             </p>
-            <ul className="space-y-1">
+            <ul className="space-y-0.5">
               {categories.map((category, idx) => {
                 const isActive = category.id === activeCategoryId && !isSearching;
                 const orderLabel = String(idx + 1).padStart(2, "0");
@@ -431,7 +434,7 @@ export function NightMenuView({
                         onSelectCategory(category.id);
                       }}
                       aria-current={isActive ? "true" : undefined}
-                      className={`flex w-full items-start gap-2.5 rounded-[8px] px-3 py-2.5 text-left text-[13.5px] leading-[1.32] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] ${
+                      className={`flex w-full items-start gap-2.5 rounded-[8px] px-3 py-2 text-left text-[13px] leading-[1.3] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] ${
                         isActive
                           ? "bg-[var(--menu-accent)] font-semibold text-[var(--menu-accent-contrast)]"
                           : "font-medium text-[var(--menu-text-secondary)] hover:bg-[var(--menu-surface)] hover:text-[var(--menu-text)]"
@@ -497,7 +500,7 @@ export function NightMenuView({
             </section>
           ) : (
             <div className="space-y-8">
-              {sectionsToRender.map((section) => {
+              {sectionsToRender.map((section, sectionIdx) => {
                 const catText = getCategoryText(section.category, language);
 
                 return (
@@ -533,7 +536,7 @@ export function NightMenuView({
                     </div>
 
                     <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-3 lg:gap-5">
-                      {section.items.map((item) => {
+                      {section.items.map((item, itemIdx) => {
                         const { cardName, imageAlt } = getItemText(
                           item,
                           language
@@ -555,6 +558,11 @@ export function NightMenuView({
                                     alt={imageAlt}
                                     fill
                                     sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 290px"
+                                    loading={
+                                      sectionIdx === 0 && itemIdx < 4
+                                        ? "eager"
+                                        : "lazy"
+                                    }
                                     unoptimized
                                     className="object-cover"
                                   />

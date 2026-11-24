@@ -46,10 +46,12 @@ function VitrinItemRow({
   item,
   onSelect,
   language,
+  eager = false,
 }: {
   item: MenuItem;
   onSelect: (item: MenuItem, triggerEl: HTMLButtonElement) => void;
   language: MenuLanguage;
+  eager?: boolean;
 }) {
   const dict = getUiDictionary(language);
   const { cardName, description, imageAlt } = getItemText(item, language);
@@ -68,6 +70,7 @@ function VitrinItemRow({
             alt={imageAlt}
             fill
             sizes="(min-width: 768px) 108px, 96px"
+            loading={eager ? "eager" : "lazy"}
             unoptimized
             style={{
               objectPosition:
@@ -465,6 +468,7 @@ export function VitrinMenuView({
                         alt={tile.coverAlt}
                         fill
                         sizes="(min-width: 768px) 300px, 48vw"
+                        loading={index < 6 ? "eager" : "lazy"}
                         unoptimized
                         style={{
                           objectPosition:
@@ -533,7 +537,7 @@ export function VitrinMenuView({
               </section>
             ) : (
               <div className="space-y-6">
-                {visibleSections.map((section) => {
+                {visibleSections.map((section, sectionIdx) => {
                   const catText = getCategoryText(section.category, language);
 
                   return (
@@ -554,12 +558,13 @@ export function VitrinMenuView({
                       </div>
 
                       <div className="space-y-2.5 md:space-y-3">
-                        {section.items.map((item) => (
+                        {section.items.map((item, itemIdx) => (
                           <VitrinItemRow
                             key={item.id}
                             item={item}
                             onSelect={onSelectItem}
                             language={language}
+                            eager={sectionIdx === 0 && itemIdx < 4}
                           />
                         ))}
                       </div>
@@ -590,12 +595,13 @@ export function VitrinMenuView({
             </div>
 
             <div className="space-y-2.5 md:space-y-3">
-              {activeCategorySection.items.map((item) => (
+              {activeCategorySection.items.map((item, idx) => (
                 <VitrinItemRow
                   key={item.id}
                   item={item}
                   onSelect={onSelectItem}
                   language={language}
+                  eager={idx < 4}
                 />
               ))}
             </div>

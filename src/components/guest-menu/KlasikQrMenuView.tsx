@@ -46,10 +46,12 @@ function KlasikItemRow({
   item,
   onSelect,
   language,
+  eager = false,
 }: {
   item: MenuItem;
   onSelect: (item: MenuItem, triggerEl: HTMLButtonElement) => void;
   language: MenuLanguage;
+  eager?: boolean;
 }) {
   const { cardName, description, imageAlt } = getItemText(item, language);
   const formattedPrice = formatPriceTRY(item.priceKurus);
@@ -68,6 +70,7 @@ function KlasikItemRow({
             width={92}
             height={92}
             sizes="(min-width: 768px) 92px, 84px"
+            loading={eager ? "eager" : "lazy"}
             unoptimized
             style={{
               objectPosition:
@@ -385,7 +388,7 @@ export function KlasikQrMenuView({
                   canScrollRight ? "pr-6" : ""
                 }`}
               >
-                {categories.map((category) => {
+                {categories.map((category, catIdx) => {
                   const isActive = category.id === activeCategoryId;
                   const catText = getCategoryText(category, language);
 
@@ -416,6 +419,7 @@ export function KlasikQrMenuView({
                             alt={catText.coverImageAlt}
                             fill
                             sizes="138px"
+                            loading={catIdx < 5 ? "eager" : "lazy"}
                             unoptimized
                             style={{
                               objectPosition:
@@ -519,6 +523,7 @@ export function KlasikQrMenuView({
                           alt={card.coverAlt}
                           fill
                           sizes="(min-width: 768px) 270px, 46vw"
+                          loading={index < 6 ? "eager" : "lazy"}
                           unoptimized
                           style={{
                             objectPosition:
@@ -583,7 +588,7 @@ export function KlasikQrMenuView({
               </section>
             ) : (
               <div className="space-y-6">
-                {visibleSections.map((section) => {
+                {visibleSections.map((section, sectionIdx) => {
                   const catText = getCategoryText(section.category, language);
                   return (
                     <section
@@ -603,12 +608,13 @@ export function KlasikQrMenuView({
                       </div>
 
                       <div className="divide-y divide-[var(--menu-border)] overflow-hidden rounded-[12px] border border-[var(--menu-border)] bg-[var(--menu-surface)]">
-                        {section.items.map((item) => (
+                        {section.items.map((item, itemIdx) => (
                           <KlasikItemRow
                             key={item.id}
                             item={item}
                             onSelect={onSelectItem}
                             language={language}
+                            eager={sectionIdx === 0 && itemIdx < 4}
                           />
                         ))}
                       </div>
@@ -644,12 +650,13 @@ export function KlasikQrMenuView({
             </div>
 
             <div className="divide-y divide-[var(--menu-border)] overflow-hidden rounded-[12px] border border-[var(--menu-border)] bg-[var(--menu-surface)]">
-              {activeSection.items.map((item) => (
+              {activeSection.items.map((item, idx) => (
                 <KlasikItemRow
                   key={item.id}
                   item={item}
                   onSelect={onSelectItem}
                   language={language}
+                  eager={idx < 4}
                 />
               ))}
             </div>

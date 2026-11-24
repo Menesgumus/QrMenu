@@ -44,10 +44,12 @@ function CanliItemRow({
   item,
   onSelect,
   language,
+  eager = false,
 }: {
   item: MenuItem;
   onSelect: (item: MenuItem, triggerEl: HTMLButtonElement) => void;
   language: MenuLanguage;
+  eager?: boolean;
 }) {
   const dict = getUiDictionary(language);
   const { cardName, description, imageAlt } = getItemText(item, language);
@@ -67,6 +69,7 @@ function CanliItemRow({
             width={104}
             height={104}
             sizes="(min-width: 768px) 104px, 88px"
+            loading={eager ? "eager" : "lazy"}
             unoptimized
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
@@ -470,6 +473,7 @@ export function CanliMenuView({
                           alt={card.coverAlt}
                           fill
                           sizes="(min-width: 768px) 300px, 46vw"
+                          loading={index < 6 ? "eager" : "lazy"}
                           unoptimized
                           className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                         />
@@ -561,7 +565,7 @@ export function CanliMenuView({
               </section>
             ) : (
               <div className="space-y-8">
-                {visibleSections.map((section) => {
+                {visibleSections.map((section, sectionIdx) => {
                   const catText = getCategoryText(section.category, language);
 
                   return (
@@ -588,12 +592,13 @@ export function CanliMenuView({
                       </div>
 
                       <div className="space-y-3">
-                        {section.items.map((item) => (
+                        {section.items.map((item, itemIdx) => (
                           <CanliItemRow
                             key={item.id}
                             item={item}
                             onSelect={onSelectItem}
                             language={language}
+                            eager={sectionIdx === 0 && itemIdx < 4}
                           />
                         ))}
                       </div>
@@ -638,12 +643,13 @@ export function CanliMenuView({
             </div>
 
             <div className="space-y-3">
-              {activeCategorySection.items.map((item) => (
+              {activeCategorySection.items.map((item, idx) => (
                 <CanliItemRow
                   key={item.id}
                   item={item}
                   onSelect={onSelectItem}
                   language={language}
+                  eager={idx < 4}
                 />
               ))}
             </div>

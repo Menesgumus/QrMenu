@@ -751,7 +751,7 @@ export function GuestMenuClient({
               </section>
             ) : (
               <div className="space-y-8 md:space-y-10">
-                {visibleSections.map((section) => {
+                {visibleSections.map((section, sectionIndex) => {
                   const catText = getCategoryText(
                     section.category,
                     effectiveLanguage
@@ -784,12 +784,13 @@ export function GuestMenuClient({
                       </div>
 
                       <div>
-                        {section.items.map((item) => (
+                        {section.items.map((item, itemIndex) => (
                           <MenuItemRow
                             key={item.id}
                             item={item}
                             onSelect={handleSelectItem}
                             language={effectiveLanguage}
+                            eager={sectionIndex === 0 && itemIndex < 4}
                           />
                         ))}
                       </div>

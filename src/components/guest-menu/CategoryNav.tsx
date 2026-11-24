@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getCategoryText, getUiDictionary } from "@/lib/i18n";
 import type { MenuCategory, MenuLanguage } from "@/types/menu";
 
@@ -34,6 +34,8 @@ export function CategoryNav({
   const scrollStripRef = useRef<HTMLDivElement | null>(null);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const dict = getUiDictionary(language);
 
   useEffect(() => {
@@ -58,6 +60,31 @@ export function CategoryNav({
   }, [activeCategoryId]);
 
   useEffect(() => {
+    const strip = scrollStripRef.current;
+    if (!strip) return;
+
+    const updateScrollCues = () => {
+      const maxScrollLeft = strip.scrollWidth - strip.clientWidth;
+      setCanScrollLeft(strip.scrollLeft > 4);
+      setCanScrollRight(maxScrollLeft - strip.scrollLeft > 6);
+    };
+
+    updateScrollCues();
+    strip.addEventListener("scroll", updateScrollCues, { passive: true });
+
+    let observer: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(updateScrollCues);
+      observer.observe(strip);
+    }
+
+    return () => {
+      strip.removeEventListener("scroll", updateScrollCues);
+      observer?.disconnect();
+    };
+  }, [categories.length, language]);
+
+  useEffect(() => {
     if (searchOpen) {
       searchInputRef.current?.focus();
     }
@@ -73,45 +100,72 @@ export function CategoryNav({
       className="sticky z-30 border-y border-[var(--menu-border-strong)] backdrop-blur-sm"
     >
       <div className="mx-auto flex w-full max-w-[820px] items-stretch px-4 md:px-8">
-        <nav
-          ref={scrollStripRef}
-          aria-label={dict.nav.categoriesLabel}
-          className="no-scrollbar flex min-w-0 flex-1 items-stretch gap-5 overflow-x-auto pr-3"
-        >
-          {categories.map((category, index) => {
-            const isActive = category.id === activeCategoryId;
-            const orderLabel = String(index + 1).padStart(2, "0");
-            const { name } = getCategoryText(category, language);
+        <div className="relative min-w-0 flex-1">
+          <nav
+            ref={scrollStripRef}
+            aria-label={dict.nav.categoriesLabel}
+            className={`no-scrollbar flex w-full items-stretch gap-4 overflow-x-auto md:gap-5 ${
+              canScrollRight ? "pr-7" : "pr-3"
+            }`}
+          >
+            {categories.map((category, index) => {
+              const isActive = category.id === activeCategoryId;
+              const orderLabel = String(index + 1).padStart(2, "0");
+              const { name, shortLabel } = getCategoryText(category, language);
 
-            return (
-              <button
-                key={category.id}
-                ref={(el) => {
-                  tabRefs.current[category.id] = el;
-                }}
-                type="button"
-                onClick={() => onSelectCategory(category.id)}
-                aria-current={isActive ? "true" : undefined}
-                className={`relative flex min-h-[44px] shrink-0 items-center gap-1.5 py-2.5 text-left text-[13px] whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--menu-focus)] ${
-                  isActive
-                    ? "font-semibold text-[var(--menu-accent)]"
-                    : "font-medium text-[var(--menu-text-secondary)] hover:text-[var(--menu-text)]"
-                }`}
-              >
-                <span className="tabular-nums text-[11px] opacity-75">
-                  {orderLabel}
-                </span>
-                <span>{name}</span>
-                {isActive && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute right-0 bottom-0 left-0 h-[2.5px] bg-[var(--menu-accent)]"
-                  />
-                )}
-              </button>
-            );
-          })}
-        </nav>
+              return (
+                <button
+                  key={category.id}
+                  ref={(el) => {
+                    tabRefs.current[category.id] = el;
+                  }}
+                  type="button"
+                  onClick={() => onSelectCategory(category.id)}
+                  aria-current={isActive ? "true" : undefined}
+                  className={`relative flex min-h-[44px] shrink-0 items-center gap-1.5 py-2.5 text-left text-[13px] whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--menu-focus)] ${
+                    isActive
+                      ? "font-semibold text-[var(--menu-accent)]"
+                      : "font-medium text-[var(--menu-text-secondary)] hover:text-[var(--menu-text)]"
+                  }`}
+                >
+                  <span className="tabular-nums text-[11px] opacity-75">
+                    {orderLabel}
+                  </span>
+                  <span className="md:hidden">{shortLabel}</span>
+                  <span className="hidden md:inline">{name}</span>
+                  {isActive && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute right-0 bottom-0 left-0 h-[2.5px] bg-[var(--menu-accent)]"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          {canScrollLeft && (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-0 flex w-6 items-center bg-gradient-to-r from-[var(--menu-bg)] via-[var(--menu-bg-glass)] to-transparent"
+            >
+              <span className="text-[13px] leading-none font-semibold text-[var(--menu-text-secondary)]">
+                ‹
+              </span>
+            </div>
+          )}
+
+          {canScrollRight && (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 right-0 flex w-8 items-center justify-end bg-gradient-to-l from-[var(--menu-bg)] via-[var(--menu-bg-glass)] to-transparent pr-1.5"
+            >
+              <span className="text-[13px] leading-none font-semibold text-[var(--menu-accent)]">
+                ›
+              </span>
+            </div>
+          )}
+        </div>
 
         <div className="flex shrink-0 items-center border-l border-[var(--menu-border)] pl-3">
           <button

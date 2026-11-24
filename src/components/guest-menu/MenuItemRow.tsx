@@ -7,9 +7,15 @@ interface MenuItemRowProps {
   item: MenuItem;
   onSelect: (item: MenuItem, triggerEl: HTMLButtonElement) => void;
   language: MenuLanguage;
+  eager?: boolean;
 }
 
-export function MenuItemRow({ item, onSelect, language }: MenuItemRowProps) {
+export function MenuItemRow({
+  item,
+  onSelect,
+  language,
+  eager = false,
+}: MenuItemRowProps) {
   const { fullName, description, imageAlt } = getItemText(item, language);
   const formattedPrice = formatPriceTRY(item.priceKurus);
 
@@ -43,6 +49,7 @@ export function MenuItemRow({ item, onSelect, language }: MenuItemRowProps) {
               alt={imageAlt}
               fill
               sizes="(max-width: 768px) 88px, 104px"
+              loading={eager ? "eager" : "lazy"}
               unoptimized
               className="object-cover"
             />
