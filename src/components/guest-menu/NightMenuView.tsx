@@ -15,6 +15,7 @@ import type {
   MenuLanguage,
 } from "@/types/menu";
 import { BrandMark } from "./BrandMark";
+import { getThemeContainerClass } from "./layout-tokens";
 import { MenuImage } from "./MenuImage";
 
 export interface MenuSectionGroup {
@@ -146,40 +147,44 @@ export function NightMenuView({
       className="min-h-screen bg-[var(--menu-bg)] text-[var(--menu-text)] font-night-sans"
     >
       {/* Mobil Kompakt İşletme Başlığı */}
-      <header className="border-b border-[var(--menu-border)] px-4 pt-3.5 pb-3 lg:hidden">
-        <div className="flex items-center gap-3">
-          <div
-            style={{
-              backgroundColor: "var(--menu-logo-bg)",
-              borderColor: "var(--menu-logo-border)",
-              color: "var(--menu-logo-ink)",
-            }}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[6px] border p-1"
-          >
-            <BrandMark className="h-8 w-8" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1
-              style={nightDisplayFont}
-              className="font-night-display text-[23px] leading-[1.12] font-semibold tracking-[-0.01em] text-[var(--menu-text)]"
+      <header className="border-b border-[var(--menu-border)] lg:hidden">
+        <div
+          className={`mx-auto w-full px-4 pt-3.5 pb-3 ${getThemeContainerClass("gece")}`}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              style={{
+                backgroundColor: "var(--menu-logo-bg)",
+                borderColor: "var(--menu-logo-border)",
+                color: "var(--menu-logo-ink)",
+              }}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[6px] border p-1"
             >
-              {business.name}
-            </h1>
-            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11.5px] text-[var(--menu-text-secondary)]">
-              <span>{business.address}</span>
-              <span aria-hidden="true" className="opacity-50">
-                ·
-              </span>
-              <span className="tabular-nums">{business.hours}</span>
-              <span aria-hidden="true" className="opacity-50">
-                ·
-              </span>
-              <a
-                href={business.phoneHref}
-                className="font-medium tabular-nums text-[var(--menu-text)] hover:text-[var(--menu-accent)]"
+              <BrandMark className="h-8 w-8" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1
+                style={nightDisplayFont}
+                className="font-night-display text-[23px] leading-[1.12] font-semibold tracking-[-0.01em] text-[var(--menu-text)]"
               >
-                {business.phone}
-              </a>
+                {business.name}
+              </h1>
+              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11.5px] text-[var(--menu-text-secondary)]">
+                <span>{business.address}</span>
+                <span aria-hidden="true" className="opacity-50">
+                  ·
+                </span>
+                <span className="tabular-nums">{business.hours}</span>
+                <span aria-hidden="true" className="opacity-50">
+                  ·
+                </span>
+                <a
+                  href={business.phoneHref}
+                  className="font-medium tabular-nums text-[var(--menu-text)] hover:text-[var(--menu-accent)]"
+                >
+                  {business.phone}
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -194,7 +199,9 @@ export function NightMenuView({
         }}
         className="sticky z-30 border-b border-[var(--menu-border)] backdrop-blur-sm lg:hidden"
       >
-        <div className="flex items-center gap-2 px-4 py-2">
+        <div
+          className={`mx-auto flex w-full items-center gap-2 px-4 py-2 ${getThemeContainerClass("gece")}`}
+        >
           <div className="relative min-w-0 flex-1">
             <nav
               ref={scrollStripRef}
@@ -295,7 +302,9 @@ export function NightMenuView({
             id="night-menu-search-panel"
             className="border-t border-[var(--menu-border)] bg-[var(--menu-surface-muted)]"
           >
-            <div className="flex items-center gap-2 px-4 py-2">
+            <div
+              className={`mx-auto flex w-full items-center gap-2 px-4 py-2 ${getThemeContainerClass("gece")}`}
+            >
               <label htmlFor="night-mobile-search-input" className="sr-only">
                 {dict.nav.searchInputLabel}
               </label>
@@ -339,12 +348,14 @@ export function NightMenuView({
       </div>
 
       {/* Ana Düzen: Masaüstünde Sol Sabit Gezinme + Sağda Ürün Izgarası */}
-      <div className="mx-auto w-full max-w-[1220px] px-4 pt-4 pb-16 md:px-8 lg:grid lg:grid-cols-[276px_minmax(0,1fr)] lg:items-start lg:gap-10 lg:pt-8">
+      <div
+        className={`mx-auto w-full px-4 pt-4 pb-16 ${getThemeContainerClass("gece")} lg:grid lg:grid-cols-[252px_minmax(0,1fr)] lg:items-start lg:gap-7 lg:pt-8 xl:grid-cols-[276px_minmax(0,1fr)] xl:gap-9`}
+      >
         <aside
           className="hidden lg:sticky lg:block lg:overflow-y-auto lg:pr-1 lg:pb-2"
           style={{
-            top: `${stickyTopOffset + 24}px`,
-            maxHeight: `calc(100dvh - ${stickyTopOffset + 48}px)`,
+            top: `${stickyTopOffset + 20}px`,
+            maxHeight: `calc(100dvh - ${stickyTopOffset + 40}px)`,
           }}
         >
           <div className="rounded-[10px] border border-[var(--menu-border)] bg-[var(--menu-surface)] p-4">
@@ -401,7 +412,9 @@ export function NightMenuView({
                   }
                 }}
                 placeholder={dict.nav.searchPlaceholderShort}
-                className="w-full rounded-[8px] border border-[var(--menu-border)] bg-[var(--menu-surface)] py-2 pr-16 pl-3.5 text-[13.5px] text-[var(--menu-text)] placeholder:text-[var(--menu-text-secondary)] focus:border-[var(--menu-accent)] focus:outline-none"
+                className={`w-full rounded-[8px] border border-[var(--menu-border)] bg-[var(--menu-surface)] py-2 pl-3.5 text-[13px] text-[var(--menu-text)] placeholder:text-[var(--menu-text-secondary)] focus:border-[var(--menu-accent)] focus:outline-none ${
+                  searchQuery.length > 0 ? "pr-14" : "pr-3"
+                }`}
               />
               {searchQuery.length > 0 && (
                 <button
@@ -459,7 +472,7 @@ export function NightMenuView({
         </aside>
 
         {/* Ürün Alanı */}
-        <main className="min-w-0">
+        <main className="min-w-0 @container">
           {isSearching && (
             <div className="mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--menu-border)] pb-3 text-[13px] text-[var(--menu-text-secondary)]">
               <span>{dict.search.resultsInMenu(trimmedQuery, totalMatches)}</span>
@@ -535,7 +548,7 @@ export function NightMenuView({
                       </span>
                     </div>
 
-                    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-3 lg:gap-5">
+                    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-4 xl:gap-5 @[1040px]:grid-cols-4">
                       {section.items.map((item, itemIdx) => {
                         const { cardName, imageAlt } = getItemText(
                           item,
@@ -558,7 +571,7 @@ export function NightMenuView({
                                     alt={imageAlt}
                                     preset="card-grid"
                                     fill
-                                    sizes="(max-width: 639px) calc((100vw - 44px) / 2), (max-width: 1023px) calc((100vw - 96px) / 3), 270px"
+                                    sizes="(max-width: 639px) calc((100vw - 44px) / 2), (max-width: 767px) calc((100vw - 64px) / 3), (max-width: 1023px) calc((100vw - 96px) / 3), (max-width: 1279px) calc((100vw - 376px) / 3), (max-width: 1431px) calc((100vw - 432px) / 3), (max-width: 1519px) calc((100vw - 452px) / 4), 267px"
                                     loading={
                                       sectionIdx === 0 && itemIdx < 4
                                         ? "eager"

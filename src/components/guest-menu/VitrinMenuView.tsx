@@ -10,6 +10,7 @@ import type {
   MenuLanguage,
 } from "@/types/menu";
 import { BrandMark } from "./BrandMark";
+import { getThemeContainerClass } from "./layout-tokens";
 import { MenuImage } from "./MenuImage";
 
 export type VitrinViewMode = "categories" | "items";
@@ -61,7 +62,7 @@ function VitrinItemRow({
     <button
       type="button"
       onClick={(event) => onSelect(item, event.currentTarget)}
-      className="group flex w-full items-center gap-3.5 rounded-[12px] border border-[var(--menu-border)] bg-[var(--menu-surface)] p-2.5 text-left transition-colors duration-150 hover:border-[var(--menu-border-strong)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] md:gap-4 md:p-3.5"
+      className="group flex h-full w-full items-center gap-3.5 rounded-[12px] border border-[var(--menu-border)] bg-[var(--menu-surface)] p-2.5 text-left transition-colors duration-150 hover:border-[var(--menu-border-strong)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] md:gap-4 md:p-3.5 @[1040px]:items-start"
     >
       {item.image && (
         <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[9px] bg-[var(--menu-surface-muted)] md:h-[108px] md:w-[108px]">
@@ -82,9 +83,14 @@ function VitrinItemRow({
       )}
 
       <div className="min-w-0 flex-1">
-        <h3 className="text-[15.5px] leading-[1.28] font-semibold tracking-[-0.01em] text-[var(--menu-text)] md:text-[17px]">
-          {cardName}
-        </h3>
+        <div className="@[1040px]:flex @[1040px]:items-start @[1040px]:justify-between @[1040px]:gap-3">
+          <h3 className="min-w-0 flex-1 text-[15.5px] leading-[1.28] font-semibold tracking-[-0.01em] text-[var(--menu-text)] md:text-[17px]">
+            {cardName}
+          </h3>
+          <span className="hidden shrink-0 whitespace-nowrap text-[16px] font-bold tabular-nums text-[var(--menu-text)] @[1040px]:inline">
+            {formattedPrice}
+          </span>
+        </div>
 
         {description && (
           <p className="mt-1 line-clamp-2 text-[13px] leading-[1.44] text-[var(--menu-text-secondary)] md:text-[13.5px]">
@@ -100,9 +106,15 @@ function VitrinItemRow({
             {dict.nav.detailsAction}
           </span>
         </div>
+
+        <div className="mt-2 hidden @[1040px]:flex @[1040px]:justify-end">
+          <span className="text-[12px] font-medium text-[var(--menu-text-secondary)] group-hover:text-[var(--menu-text)]">
+            {dict.nav.detailsAction}
+          </span>
+        </div>
       </div>
 
-      <div className="hidden shrink-0 flex-col items-end justify-center pl-4 text-right md:flex">
+      <div className="hidden shrink-0 flex-col items-end justify-center pl-4 text-right md:flex @[1040px]:hidden">
         <span className="whitespace-nowrap text-[17px] font-bold tabular-nums text-[var(--menu-text)]">
           {formattedPrice}
         </span>
@@ -245,7 +257,9 @@ export function VitrinMenuView({
     >
       {/* Belirgin Logolu fakat Kompakt İşletme Başlığı */}
       <header className="border-b border-[var(--menu-border)] bg-[var(--menu-bg)]">
-        <div className="mx-auto w-full max-w-[960px] px-4 py-2.5 md:px-8 md:py-3.5">
+        <div
+          className={`mx-auto w-full px-4 py-2.5 md:py-3.5 ${getThemeContainerClass("vitrin")}`}
+        >
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <div
@@ -360,7 +374,7 @@ export function VitrinMenuView({
         </div>
       </header>
 
-      {/* Kategori İçindeki Ürün Görünümünde Dönüş & Diğer Kategoriler Şeridi */}
+      {/* Kategori İçindeki Ürün Görünümünde Mobil & Tablet Dikey Sabit Şerit */}
       {showItemList && (
         <div
           ref={navRef}
@@ -368,9 +382,11 @@ export function VitrinMenuView({
             top: `${stickyTopOffset}px`,
             backgroundColor: "var(--menu-bg-glass)",
           }}
-          className="sticky z-30 border-b border-[var(--menu-border)] backdrop-blur-sm"
+          className="sticky z-30 border-b border-[var(--menu-border)] backdrop-blur-sm lg:hidden"
         >
-          <div className="mx-auto flex w-full max-w-[960px] flex-col gap-2 px-4 py-2 md:flex-row md:items-center md:justify-between md:gap-4 md:px-8 md:py-2.5">
+          <div
+            className={`mx-auto flex w-full flex-col gap-2 px-4 py-2 md:flex-row md:items-center md:justify-between md:gap-4 md:py-2.5 ${getThemeContainerClass("vitrin")}`}
+          >
             <div className="flex shrink-0 items-center">
               <button
                 type="button"
@@ -441,11 +457,13 @@ export function VitrinMenuView({
         </div>
       )}
 
-      <main className="mx-auto w-full max-w-[960px] px-4 pt-3 pb-16 md:px-8 md:pt-5">
+      <main
+        className={`mx-auto w-full px-4 pt-3 pb-16 md:pt-5 ${getThemeContainerClass("vitrin")}`}
+      >
         {/* AÇILIŞ EKRANI: FOTOĞRAF ODAKLI KATEGORİ KUTULARI */}
         {showCategoryShowcase && (
           <section aria-label={dict.nav.categoriesShowcaseLabel}>
-            <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-3.5">
+            <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-3.5 lg:gap-4 xl:grid-cols-4 xl:gap-5">
               {categoryTiles.map((tile, index) => {
                 const isLastOddMobile =
                   categoryTiles.length % 2 === 1 &&
@@ -458,8 +476,8 @@ export function VitrinMenuView({
                     onClick={() => onSelectCategory(tile.category.id)}
                     className={`group relative overflow-hidden rounded-[12px] bg-[var(--menu-surface-muted)] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] ${
                       isLastOddMobile
-                        ? "col-span-2 aspect-[2/1] md:col-span-1 md:aspect-[4/5]"
-                        : "aspect-[4/5]"
+                        ? "col-span-2 aspect-[2/1] md:col-span-1 md:aspect-[4/5] lg:aspect-[4/3]"
+                        : "aspect-[4/5] lg:aspect-[4/3]"
                     }`}
                   >
                     {tile.coverUrl && (
@@ -470,8 +488,8 @@ export function VitrinMenuView({
                         fill
                         sizes={
                           isLastOddMobile
-                            ? "(max-width: 767px) calc(100vw - 32px), 362px"
-                            : "(max-width: 767px) calc((100vw - 42px) * 0.625), 362px"
+                            ? "(max-width: 767px) calc(100vw - 32px), (max-width: 1023px) calc((100vw - 92px) / 3 * 1.25), (max-width: 1279px) calc((100vw - 96px) / 3), (max-width: 1559px) calc((100vw - 140px) / 4), 355px"
+                            : "(max-width: 767px) calc((100vw - 42px) * 0.625), (max-width: 1023px) calc((100vw - 92px) / 3 * 1.25), (max-width: 1279px) calc((100vw - 96px) / 3), (max-width: 1559px) calc((100vw - 140px) / 4), 355px"
                         }
                         loading={index < 6 ? "eager" : "lazy"}
                         fetchPriority={index === 0 || index === 2 ? "high" : undefined}
@@ -506,7 +524,7 @@ export function VitrinMenuView({
 
         {/* ARAMA SONUÇLARI */}
         {isSearching && (
-          <div>
+          <div className="@container">
             <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 rounded-[10px] border border-[var(--menu-border)] bg-[var(--menu-surface)] px-3.5 py-2.5 text-[13px] text-[var(--menu-text)]">
               <span>{dict.search.resultsCompact(trimmedQuery, totalMatches)}</span>
               <button
@@ -562,7 +580,7 @@ export function VitrinMenuView({
                         </span>
                       </div>
 
-                      <div className="space-y-2.5 md:space-y-3">
+                      <div className="grid grid-cols-1 gap-2.5 md:gap-3 @[1040px]:grid-cols-2 @[1040px]:gap-4">
                         {section.items.map((item, itemIdx) => (
                           <VitrinItemRow
                             key={item.id}
@@ -583,38 +601,92 @@ export function VitrinMenuView({
 
         {/* SEÇİLİ KATEGORİ ÜRÜN LİSTESİ */}
         {showItemList && activeCategorySection && activeSectionText && (
-          <section
-            aria-labelledby={`vitrin-heading-${activeCategorySection.category.id}`}
-          >
-            <div className="mb-3 flex items-baseline justify-between gap-3">
-              <h2
-                id={`vitrin-heading-${activeCategorySection.category.id}`}
-                className="text-[19px] leading-[1.2] font-semibold tracking-[-0.015em] text-[var(--menu-text)] md:text-[23px]"
-              >
-                <span className="md:hidden">{activeSectionText.shortLabel}</span>
-                <span className="hidden md:inline">{activeSectionText.name}</span>
-              </h2>
-              <span className="shrink-0 text-[12.5px] font-medium text-[var(--menu-text-secondary)]">
-                {dict.counts.items(activeCategorySection.items.length)}
-              </span>
-            </div>
+          <div className="lg:grid lg:grid-cols-[236px_minmax(0,1fr)] lg:items-start lg:gap-7 xl:grid-cols-[248px_minmax(0,1fr)] xl:gap-8">
+            <aside
+              aria-label={dict.nav.categoriesLabel}
+              style={{
+                top: `${stickyTopOffset + 20}px`,
+                maxHeight: `calc(100dvh - ${stickyTopOffset + 40}px)`,
+              }}
+              className="hidden lg:sticky lg:block lg:overflow-y-auto lg:pr-1 lg:pb-2"
+            >
+              <div className="rounded-[12px] border border-[var(--menu-border)] bg-[var(--menu-surface)] p-3">
+                <button
+                  type="button"
+                  onClick={onBackToCategories}
+                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-[var(--menu-border-strong)] bg-[var(--menu-surface-muted)] px-3.5 py-1.5 text-[12.5px] font-semibold text-[var(--menu-text)] transition-colors hover:border-[var(--menu-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)]"
+                >
+                  <span aria-hidden="true">←</span>
+                  <span>{dict.nav.backToCategories}</span>
+                </button>
 
-            <div className="space-y-2.5 md:space-y-3">
-              {activeCategorySection.items.map((item, idx) => (
-                <VitrinItemRow
-                  key={item.id}
-                  item={item}
-                  onSelect={onSelectItem}
-                  language={language}
-                  eager={idx < 4}
-                />
-              ))}
-            </div>
-          </section>
+                <nav aria-label={dict.nav.categoriesLabel} className="mt-3.5">
+                  <p className="px-2 pb-1.5 text-[11px] font-medium tracking-[0.08em] uppercase text-[var(--menu-text-secondary)]">
+                    {dict.nav.categoriesPill}
+                  </p>
+                  <ul className="space-y-0.5">
+                    {categories.map((category) => {
+                      const isActive = category.id === activeCategoryId;
+                      const { shortLabel } = getCategoryText(category, language);
+
+                      return (
+                        <li key={category.id}>
+                          <button
+                            type="button"
+                            onClick={() => onSelectCategory(category.id)}
+                            aria-current={isActive ? "true" : undefined}
+                            className={`flex w-full items-center justify-between gap-2 rounded-full px-3 py-1.5 text-left text-[13px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] ${
+                              isActive
+                                ? "bg-[var(--menu-accent)] font-semibold text-[var(--menu-accent-contrast)]"
+                                : "font-medium text-[var(--menu-text-secondary)] hover:bg-[var(--menu-surface-muted)] hover:text-[var(--menu-text)]"
+                            }`}
+                          >
+                            <span className="truncate">{shortLabel}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </nav>
+              </div>
+            </aside>
+
+            <section
+              aria-labelledby={`vitrin-heading-${activeCategorySection.category.id}`}
+              className="min-w-0 @container"
+            >
+              <div className="mb-3 flex items-baseline justify-between gap-3">
+                <h2
+                  id={`vitrin-heading-${activeCategorySection.category.id}`}
+                  className="text-[19px] leading-[1.2] font-semibold tracking-[-0.015em] text-[var(--menu-text)] md:text-[23px]"
+                >
+                  <span className="md:hidden">{activeSectionText.shortLabel}</span>
+                  <span className="hidden md:inline">{activeSectionText.name}</span>
+                </h2>
+                <span className="shrink-0 text-[12.5px] font-medium text-[var(--menu-text-secondary)]">
+                  {dict.counts.items(activeCategorySection.items.length)}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2.5 md:gap-3 @[1040px]:grid-cols-2 @[1040px]:gap-4">
+                {activeCategorySection.items.map((item, idx) => (
+                  <VitrinItemRow
+                    key={item.id}
+                    item={item}
+                    onSelect={onSelectItem}
+                    language={language}
+                    eager={idx < 4}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
         )}
       </main>
 
-      <footer className="mx-auto w-full max-w-[960px] px-4 pb-10 md:px-8">
+      <footer
+        className={`mx-auto w-full px-4 pb-10 ${getThemeContainerClass("vitrin")}`}
+      >
         <div className="border-t border-[var(--menu-border)] pt-4 text-[12px] text-[var(--menu-text-secondary)]">
           <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
             <span>

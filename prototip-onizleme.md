@@ -36,8 +36,16 @@ Bu belge, aynı ortak menü verisini (`src/data/prototype-menu.ts`) kullanan alt
 
 ![Özel Menü açık ürün detayı](screenshots/1-menu-tasarimi-ozel/mobil-390-urun-detayi.png)
 
-### Masaüstü (`1440px`)
-![Özel Menü masaüstü liste](screenshots/1-menu-tasarimi-ozel/masaustu-1440-menu.png)
+### Tablet (`768px`, `1024px`) ve Masaüstü (`1280px`, `1440px`, `1920px`)
+![Özel Menü tablet dikey 768px](screenshots/1-menu-tasarimi-ozel/tablet-768-menu.png)
+
+![Özel Menü tablet yatay 1024px](screenshots/1-menu-tasarimi-ozel/tablet-1024-menu.png)
+
+![Özel Menü masaüstü 1280px](screenshots/1-menu-tasarimi-ozel/masaustu-1280-menu.png)
+
+![Özel Menü masaüstü 1440px liste](screenshots/1-menu-tasarimi-ozel/masaustu-1440-menu.png)
+
+![Özel Menü masaüstü 1920px liste](screenshots/1-menu-tasarimi-ozel/masaustu-1920-menu.png)
 
 ![Özel Menü masaüstü ürün detayı](screenshots/1-menu-tasarimi-ozel/masaustu-1440-urun-detayi.png)
 
@@ -46,7 +54,7 @@ Bu belge, aynı ortak menü verisini (`src/data/prototype-menu.ts`) kullanan alt
 ## 3. Tasarım 2: Gece (`screenshots/2-menu-tasarimi-gece/`)
 
 - Akşam açık şehir kafesi/restoranı atmosferi: `#171918` sayfa zemini, `#242725` ürün yüzeyleri, `#F5F1E8` ana metin, `#B9BDB6` ikincil metin, `#F28B50` vurgu (turuncu dolgu üzerinde `#171918` koyu metin).
-- Başlıklarda `Fraunces`, ürün kartlarında `Plus Jakarta Sans`, mobilde kategori şeridinde kısa etiketler (`Kahvaltı`, `Fırından`, `Sandviçler`, `Salatalar`, `Sıcaklar`, `Paylaşımlık`, `Sıcak Kahve`, `Soğuk Kahve`, `Çaylar`, `Soğuklar`, `Tatlılar`) ile yön oku işaretleri (`›` / `‹`), masaüstünde ise sol sabit ve gerektiğinde kaydırılabilir dikey gezinme ile tek kategori odaklı gösterim.
+- Başlıklarda `Fraunces`, ürün kartlarında `Plus Jakarta Sans`, mobilde ve tablet dikeyde (`768px`) kategori şeridinde kısa etiketler (`Kahvaltı`, `Fırından`, `Sandviçler`, `Salatalar`, `Sıcaklar`, `Paylaşımlık`, `Sıcak Kahve`, `Soğuk Kahve`, `Çaylar`, `Soğuklar`, `Tatlılar`) ile yön oku işaretleri (`›` / `‹`), `1024px+` masaüstünde ise sol sabit kaydırılabilir dikey gezinme ve kullanılabilir alana göre `3` (`1024–1280px`) ya da `4` (`1440px+`) sütunlu ürün kartı ızgarası sunulur.
 
 ### Mobil (`390px` ve `360px`)
 ![Gece 390px mobil](screenshots/2-menu-tasarimi-gece/mobil-390-menu.png)
@@ -58,8 +66,16 @@ Bu belge, aynı ortak menü verisini (`src/data/prototype-menu.ts`) kullanan alt
 
 ![Gece açık ürün detayı](screenshots/2-menu-tasarimi-gece/mobil-390-urun-detayi.png)
 
-### Masaüstü (`1440px`)
-![Gece masaüstü liste](screenshots/2-menu-tasarimi-gece/masaustu-1440-menu.png)
+### Tablet (`768px`, `1024px`) ve Masaüstü (`1280px`, `1440px`, `1920px`)
+![Gece tablet dikey 768px](screenshots/2-menu-tasarimi-gece/tablet-768-menu.png)
+
+![Gece tablet yatay 1024px](screenshots/2-menu-tasarimi-gece/tablet-1024-menu.png)
+
+![Gece masaüstü 1280px](screenshots/2-menu-tasarimi-gece/masaustu-1280-menu.png)
+
+![Gece masaüstü 1440px liste](screenshots/2-menu-tasarimi-gece/masaustu-1440-menu.png)
+
+![Gece masaüstü 1920px liste](screenshots/2-menu-tasarimi-gece/masaustu-1920-menu.png)
 
 ![Gece masaüstü ürün detayı](screenshots/2-menu-tasarimi-gece/masaustu-1440-urun-detayi.png)
 
@@ -82,10 +98,18 @@ Bu belge, aynı ortak menü verisini (`src/data/prototype-menu.ts`) kullanan alt
 
 ![Canlı 390px açık ürün detayı](screenshots/3-menu-tasarimi-canli/mobil-390-urun-detayi.png)
 
-### Masaüstü (`1440px`) — Kategori Ekranı, Ürün Listesi ve Ürün Detayı
+### Tablet (`768px`, `1024px`) ve Masaüstü (`1280px`, `1440px`, `1920px`)
+![Canlı tablet 768px kategoriler](screenshots/3-menu-tasarimi-canli/tablet-768-kategoriler.png)
+
+![Canlı tablet 1024px ürün listesi](screenshots/3-menu-tasarimi-canli/tablet-1024-urun-listesi.png)
+
+![Canlı masaüstü 1280px ürün listesi](screenshots/3-menu-tasarimi-canli/masaustu-1280-urun-listesi.png)
+
 ![Canlı 1440px kategori kartları](screenshots/3-menu-tasarimi-canli/masaustu-1440-kategoriler.png)
 
 ![Canlı 1440px ürün listesi](screenshots/3-menu-tasarimi-canli/masaustu-1440-urun-listesi.png)
+
+![Canlı 1920px ürün listesi](screenshots/3-menu-tasarimi-canli/masaustu-1920-urun-listesi.png)
 
 ![Canlı 1440px açık ürün detayı](screenshots/3-menu-tasarimi-canli/masaustu-1440-urun-detayi.png)
 
@@ -94,7 +118,7 @@ Bu belge, aynı ortak menü verisini (`src/data/prototype-menu.ts`) kullanan alt
 ## 5. Tasarım 4: Ferah (`screenshots/4-menu-tasarimi-ferah/`)
 
 - Serin, düzenli katalog kimliği: `#FFFFFF` beyaz zemin, `#EFF6FF` açık mavi yüzeyler, `#2454D6` kobalt mavisi vurgu, `#182747` koyu lacivert metin ve `Inter` tipografi.
-- Dikey açılır-kapanır kategoriler, birden fazla bölümü açık tutma, *Tümünü aç / Tümünü kapat* kontrolü ve arama sonrası açık bölümleri geri yükleme akışı.
+- Dikey açılır-kapanır kategoriler, birden fazla bölümü açık tutma, *Tümünü aç / Tümünü kapat* kontrolü, arama sırasında eşleşen kategorilere arama sorgusunu temizlemeden atlayabilen sol hızlı erişim paneli (`1024px+`) ve arama sonrası açık bölümleri geri yükleme akışı.
 
 ### Mobil (`390px`, `360px` ve Çoklu Açık Bölümler)
 ![Ferah 390px mobil](screenshots/4-menu-tasarimi-ferah/mobil-390-menu.png)
@@ -108,8 +132,16 @@ Bu belge, aynı ortak menü verisini (`src/data/prototype-menu.ts`) kullanan alt
 
 ![Ferah açık ürün detayı](screenshots/4-menu-tasarimi-ferah/mobil-390-urun-detayi.png)
 
-### Masaüstü (`1440px`)
-![Ferah masaüstü görünüm](screenshots/4-menu-tasarimi-ferah/masaustu-1440-menu.png)
+### Tablet (`768px`, `1024px`) ve Masaüstü (`1280px`, `1440px`, `1920px`)
+![Ferah tablet 768px görünüm](screenshots/4-menu-tasarimi-ferah/tablet-768-menu.png)
+
+![Ferah tablet 1024px görünüm](screenshots/4-menu-tasarimi-ferah/tablet-1024-menu.png)
+
+![Ferah masaüstü 1280px görünüm](screenshots/4-menu-tasarimi-ferah/masaustu-1280-menu.png)
+
+![Ferah masaüstü 1440px görünüm](screenshots/4-menu-tasarimi-ferah/masaustu-1440-menu.png)
+
+![Ferah masaüstü 1920px görünüm](screenshots/4-menu-tasarimi-ferah/masaustu-1920-menu.png)
 
 ![Ferah masaüstü ürün detayı](screenshots/4-menu-tasarimi-ferah/masaustu-1440-urun-detayi.png)
 
@@ -118,8 +150,8 @@ Bu belge, aynı ortak menü verisini (`src/data/prototype-menu.ts`) kullanan alt
 ## 6. Tasarım 5: Klasik QR (`screenshots/5-menu-tasarimi-klasik/`)
 
 - Açık nötr `#F7F7F8` zemin, saf beyaz ürün satırları, `#1A1D21` ana metin, `#636A73` ikincil metin ve **`DM Sans`** tipografi.
-- Kompakt başlık altında yatay kaydırılabilen fotoğraflı kategori şeridi (aktif kategori fotoğraf vurgusu + alt çizgi + başlık satırı ile açıkça işaretlenir).
-- İlk ekrandan itibaren görünen kompakt yatay ürün satırlarında solda `84×84 px` (`md: 92 px`) kare fotoğraf, ortada ad ve kısa açıklama, sağda sabit korumalı para birimli fiyat yer alır.
+- Mobil ve tablet dikeyde (`768px`) kompakt başlık altında yatay kaydırılabilen fotoğraflı kategori şeridi; `1024px+` ekranlarda görsel tekrarı olmadan tek DOM üzerinde sol sabit fotoğraflı kategori yan paneline dönüşen gezinme (`coverObjectPosition.klasik` odaklı).
+- Yatay ürün satırlarında solda `84×84 px` (`md: 92 px`) kare fotoğraf, ortada ad ve kısa açıklama, sağda sabit korumalı para birimli fiyat yer alır; yalnızca yeterli satır genişliğinde (`1440px+`) iki sütuna geçer.
 
 ### Mobil (`390px` ve `360px`)
 ![Klasik QR 390px mobil](screenshots/5-menu-tasarimi-klasik/mobil-390-menu.png)
@@ -131,8 +163,18 @@ Bu belge, aynı ortak menü verisini (`src/data/prototype-menu.ts`) kullanan alt
 
 ![Klasik QR açık ürün detayı](screenshots/5-menu-tasarimi-klasik/mobil-390-urun-detayi.png)
 
-### Masaüstü (`1440px`)
-![Klasik QR masaüstü görünüm](screenshots/5-menu-tasarimi-klasik/masaustu-1440-menu.png)
+### Tablet (`768px`, `1024px`) ve Masaüstü (`1280px`, `1440px`, `1920px`)
+![Klasik QR tablet 768px kategoriler](screenshots/5-menu-tasarimi-klasik/tablet-768-kategoriler.png)
+
+![Klasik QR tablet 1024px ürün listesi](screenshots/5-menu-tasarimi-klasik/tablet-1024-menu.png)
+
+![Klasik QR masaüstü 1280px ürün listesi](screenshots/5-menu-tasarimi-klasik/masaustu-1280-menu.png)
+
+![Klasik QR 1440px kategoriler](screenshots/5-menu-tasarimi-klasik/masaustu-1440-kategoriler.png)
+
+![Klasik QR masaüstü 1440px görünüm](screenshots/5-menu-tasarimi-klasik/masaustu-1440-menu.png)
+
+![Klasik QR masaüstü 1920px görünüm](screenshots/5-menu-tasarimi-klasik/masaustu-1920-menu.png)
 
 ![Klasik QR masaüstü ürün detayı](screenshots/5-menu-tasarimi-klasik/masaustu-1440-urun-detayi.png)
 
@@ -141,8 +183,8 @@ Bu belge, aynı ortak menü verisini (`src/data/prototype-menu.ts`) kullanan alt
 ## 7. Tasarım 6: Vitrin (`screenshots/6-menu-tasarimi-vitrin/`)
 
 - Sade, fotoğraf ağırlıklı vitrin yaklaşımı: `#FAF9F7` sıcak açık zemin, `#FFFFFF` yüzeyler, `#191817` metin, **`Outfit`** tipografi; numara rozetleri, kalın çerçeveler ve sert gölgeler olmadan.
-- Açılışta mobilde 2 sütunlu dar boşluklu, masaüstünde 3 sütunlu geniş fotoğraf kutuları sunulur; kategori adı ve ürün sayısı yalnızca fotoğrafın alt kısmındaki kontrollü koyu geçiş üzerinde yer alır.
-- Kategori seçildiğinde **← Kategorilere dön** düğmesi ve yatay kategori geçişi altında **tek sütunlu yatay ürün satırları** açılır: mobilde solda `96×96 px` kare fotoğraf, sağda ad, kısa açıklama ve belirgin fiyat yer alır.
+- Açılışta mobilde 2 sütunlu `4/5`, tablette (`768px`, `1024px`) 3 sütunlu ve masaüstünde (`1280px+`) 4 sütunlu geniş fotoğraf kutuları sunulur; kategori adı ve ürün sayısı yalnızca fotoğrafın alt kısmındaki kontrollü koyu geçiş üzerinde yer alır.
+- Kategori seçildiğinde mobilde ve tablet dikeyde **tek sütunlu yatay ürün satırları** (`96×96 px` kare fotoğraf + ad, açıklama ve fiyat) korunur; `1024px+` ekranlarda sol kategori yan paneli, `1440px+` genişlikte ise ferah iki sütunlu yatay ürün kartları açılır.
 
 ### Mobil (`390px` ve `360px` — Fotoğraflı Kategori Vitrini)
 ![Vitrin 390px kategori vitrini](screenshots/6-menu-tasarimi-vitrin/mobil-390-kategoriler.png)
@@ -156,10 +198,18 @@ Bu belge, aynı ortak menü verisini (`src/data/prototype-menu.ts`) kullanan alt
 
 ![Vitrin 390px açık ürün detayı](screenshots/6-menu-tasarimi-vitrin/mobil-390-urun-detayi.png)
 
-### Masaüstü (`1440px`) — Kategori Vitrini, Ürün Listesi ve Ürün Detayı
+### Tablet (`768px`, `1024px`) ve Masaüstü (`1280px`, `1440px`, `1920px`)
+![Vitrin tablet 768px kategoriler](screenshots/6-menu-tasarimi-vitrin/tablet-768-kategoriler.png)
+
+![Vitrin tablet 1024px ürün listesi](screenshots/6-menu-tasarimi-vitrin/tablet-1024-urun-listesi.png)
+
+![Vitrin masaüstü 1280px ürün listesi](screenshots/6-menu-tasarimi-vitrin/masaustu-1280-urun-listesi.png)
+
 ![Vitrin 1440px kategori vitrini](screenshots/6-menu-tasarimi-vitrin/masaustu-1440-kategoriler.png)
 
 ![Vitrin 1440px ürün listesi](screenshots/6-menu-tasarimi-vitrin/masaustu-1440-urun-listesi.png)
+
+![Vitrin 1920px ürün listesi](screenshots/6-menu-tasarimi-vitrin/masaustu-1920-urun-listesi.png)
 
 ![Vitrin 1440px açık ürün detayı](screenshots/6-menu-tasarimi-vitrin/masaustu-1440-urun-detayi.png)
 
@@ -198,3 +248,12 @@ Bu belge, aynı ortak menü verisini (`src/data/prototype-menu.ts`) kullanan alt
 - **Doğrulama:** Veri bütünlüğü denetimi, `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm build` ve `390×844` / `360×780` (EN dar ekran) / `1440×900` Playwright kontrolleri sıfır hata ve sıfır taşma/çakışmayla tamamlandı; tüm ekran görüntüleri güncellendi.
 
 ![6 tasarım açık, koyu ve TR/EN mobil karşılaştırması](screenshots/karsilastirmalar/mobil-390-acik-koyu-tr-en.png)
+
+---
+
+## Tablet ve Masaüstü Responsive Düzen Doğrulaması
+
+- **Ortak Kırılım & Hizalama Sistemi:** `< 768 px` mevcut mobil yerleşimler korunurken; `768–1023 px` (tablet dikey), `1024–1279 px` (tablet yatay / küçük dizüstü) ve `1280 px+` (masaüstü, tasarım başına `1440–1560 px` dış üst sınır) için `ThemeSwitcher`, `CustomerUtilityBar`, işletme başlığı, gezinme, ana içerik ve altbilgi tek kaynak dış konteyner (`src/components/guest-menu/layout-tokens.ts`) üzerinde hizalandı.
+- **Gerçek Kullanılabilir Alana Göre Sütunlama:** CSS `@container` kurallarıyla 2 sütunlu yatay ürün kartlarına (ve Gece tasarımında 4 sütuna) yalnızca yan panel, dış boşluk ve kart iç boşlukları sonrası gerçek alan yeterli olduğunda (`1440 px+`) geçildi; `1280 px` (ve Klasik QR için `1360 px`) ekranlarda sıkışmayı önlemek için Gece 3 sütunda, yatay ürün listeleri ise tek sütunda tutuldu.
+- **İki Bölmeli Detay Penceresi:** `ItemDetailModal` masaüstünde sabit kapatma çubuğu ve tek kaydırma alanı içinde solda doğal oranlı fotoğraf, sağda başlık, fiyat ve açıklama sunacak şekilde güncellendi.
+- **Doğrulama:** `360×780`, `390×844` (mobil önce/sonra kontrolü dahil), `768×1024`, `820×1180`, `1024×768`, `1280×800`, `1440×900` ve `1920×1080` ekranlarında `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm build` ve otomatik tarayıcı kontrolleri tamamlandı.

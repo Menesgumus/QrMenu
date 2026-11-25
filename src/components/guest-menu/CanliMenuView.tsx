@@ -10,6 +10,7 @@ import type {
   MenuLanguage,
 } from "@/types/menu";
 import { BrandMark } from "./BrandMark";
+import { getThemeContainerClass } from "./layout-tokens";
 import { MenuImage } from "./MenuImage";
 
 export type CanliViewMode = "categories" | "items";
@@ -59,7 +60,7 @@ function CanliItemRow({
     <button
       type="button"
       onClick={(event) => onSelect(item, event.currentTarget)}
-      className="group flex w-full items-start gap-3.5 rounded-[14px] border-[1.5px] border-[var(--menu-border-strong)] bg-[var(--menu-surface)] p-3 text-left shadow-[2px_2px_0_var(--menu-shadow-ink)] transition-[transform,box-shadow,border-color] duration-150 hover:-translate-y-0.5 hover:border-[var(--menu-accent)] hover:shadow-[3px_3px_0_var(--menu-shadow-ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] md:items-center md:gap-4 md:p-3.5"
+      className="group flex h-full w-full items-start gap-3.5 rounded-[14px] border-[1.5px] border-[var(--menu-border-strong)] bg-[var(--menu-surface)] p-3 text-left shadow-[2px_2px_0_var(--menu-shadow-ink)] transition-[transform,box-shadow,border-color] duration-150 hover:-translate-y-0.5 hover:border-[var(--menu-accent)] hover:shadow-[3px_3px_0_var(--menu-shadow-ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] md:items-center md:gap-4 md:p-3.5 @[1040px]:items-start"
     >
       {item.image && (
         <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-[10px] border border-[var(--menu-border)] bg-[var(--menu-surface-muted)] md:h-[104px] md:w-[104px]">
@@ -76,14 +77,19 @@ function CanliItemRow({
       )}
 
       <div className="min-w-0 flex-1">
-        <h3
-          style={{
-            fontFamily: "var(--font-lively-display), system-ui, sans-serif",
-          }}
-          className="font-lively-display text-[17px] leading-[1.2] font-bold tracking-[-0.01em] text-[var(--menu-text)] transition-colors group-hover:text-[var(--menu-accent)] md:text-[18.5px]"
-        >
-          {cardName}
-        </h3>
+        <div className="@[1040px]:flex @[1040px]:items-start @[1040px]:justify-between @[1040px]:gap-3">
+          <h3
+            style={{
+              fontFamily: "var(--font-lively-display), system-ui, sans-serif",
+            }}
+            className="font-lively-display min-w-0 flex-1 text-[17px] leading-[1.2] font-bold tracking-[-0.01em] text-[var(--menu-text)] transition-colors group-hover:text-[var(--menu-accent)] md:text-[18.5px]"
+          >
+            {cardName}
+          </h3>
+          <span className="hidden shrink-0 items-center whitespace-nowrap rounded-[8px] bg-[var(--menu-accent)] px-2.5 py-0.5 text-[15px] font-extrabold tabular-nums text-[var(--menu-accent-contrast)] transition-colors group-hover:bg-[var(--menu-accent-hover)] @[1040px]:inline-flex">
+            {formattedPrice}
+          </span>
+        </div>
 
         {description && (
           <p className="mt-1 line-clamp-2 text-[13px] leading-[1.45] text-[var(--menu-text-secondary)] md:text-[13.5px]">
@@ -100,11 +106,18 @@ function CanliItemRow({
             {dict.nav.viewAction}
           </span>
         </div>
+
+        {/* 2 sütun masaüstü görünümde açıklama altında detay ipucu */}
+        <div className="mt-2 hidden @[1040px]:flex @[1040px]:justify-end">
+          <span className="text-[11.5px] font-semibold text-[var(--menu-text-secondary)] group-hover:text-[var(--menu-accent)]">
+            {dict.nav.detailsAction}
+          </span>
+        </div>
       </div>
 
-      {/* Masaüstünde sağ fiyat sütunu */}
-      <div className="hidden shrink-0 flex-col items-end justify-center pl-3 md:flex">
-        <span className="inline-flex items-center rounded-[8px] bg-[var(--menu-accent)] px-3 py-1 text-[16px] font-extrabold tabular-nums text-[var(--menu-accent-contrast)] transition-colors group-hover:bg-[var(--menu-accent-hover)]">
+      {/* Tablet ve 1 sütunlu masaüstünde sağ fiyat sütunu */}
+      <div className="hidden shrink-0 flex-col items-end justify-center pl-3 md:flex @[1040px]:hidden">
+        <span className="inline-flex items-center whitespace-nowrap rounded-[8px] bg-[var(--menu-accent)] px-3 py-1 text-[16px] font-extrabold tabular-nums text-[var(--menu-accent-contrast)] transition-colors group-hover:bg-[var(--menu-accent-hover)]">
           {formattedPrice}
         </span>
         <span className="mt-1.5 text-[11.5px] font-semibold text-[var(--menu-text-secondary)] group-hover:text-[var(--menu-accent)]">
@@ -241,7 +254,9 @@ export function CanliMenuView({
     >
       {/* Kompakt Canlı İşletme Başlığı (sarı/hardal ana renk bloğu) */}
       <header className="border-b-2 border-[var(--menu-border-strong)] bg-[var(--menu-band-bg)] text-[var(--menu-band-text)]">
-        <div className="mx-auto w-full max-w-[980px] px-4 py-2.5 md:px-8 md:py-4">
+        <div
+          className={`mx-auto w-full px-4 py-2.5 md:py-4 ${getThemeContainerClass("canli")}`}
+        >
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-3">
             <div className="flex min-w-0 items-center gap-2.5 md:gap-3">
               <div
@@ -285,7 +300,7 @@ export function CanliMenuView({
             </div>
 
             {/* Kompakt Arama Alanı */}
-            <div className="w-full shrink-0 md:w-[300px]">
+            <div className="w-full shrink-0 md:w-[300px] lg:w-[340px]">
               <label htmlFor="canli-menu-search" className="sr-only">
                 {dict.nav.searchInputLabel}
               </label>
@@ -336,7 +351,7 @@ export function CanliMenuView({
         </div>
       </header>
 
-      {/* Ürün Listesi Modunda Sabit Kategori ve Dönüş Çubuğu */}
+      {/* Ürün Listesi Modunda Mobil & Tablet Dikey Sabit Kategori ve Dönüş Çubuğu */}
       {showItemList && (
         <div
           ref={navRef}
@@ -344,9 +359,11 @@ export function CanliMenuView({
             top: `${stickyTopOffset}px`,
             backgroundColor: "var(--menu-bg-glass)",
           }}
-          className="sticky z-30 border-b-[1.5px] border-[var(--menu-border-strong)] backdrop-blur-sm"
+          className="sticky z-30 border-b-[1.5px] border-[var(--menu-border-strong)] backdrop-blur-sm lg:hidden"
         >
-          <div className="mx-auto flex w-full max-w-[980px] flex-col gap-2 px-4 py-2 md:flex-row md:items-center md:justify-between md:gap-4 md:px-8 md:py-2.5">
+          <div
+            className={`mx-auto flex w-full flex-col gap-2 px-4 py-2 md:flex-row md:items-center md:justify-between md:gap-4 md:py-2.5 ${getThemeContainerClass("canli")}`}
+          >
             <div className="flex shrink-0 items-center">
               <button
                 type="button"
@@ -417,7 +434,9 @@ export function CanliMenuView({
         </div>
       )}
 
-      <main className="mx-auto w-full max-w-[980px] px-4 pt-3 pb-16 md:px-8 md:pt-7">
+      <main
+        className={`mx-auto w-full px-4 pt-3 pb-16 md:pt-7 ${getThemeContainerClass("canli")}`}
+      >
         {/* AÇILIŞ: GÖRSELLİ KATEGORİ KARTLARI */}
         {showCategoryCards && (
           <section aria-labelledby="canli-categories-heading">
@@ -442,7 +461,7 @@ export function CanliMenuView({
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 md:gap-5">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:gap-5 xl:grid-cols-4 xl:gap-5">
               {categoryCards.map((card, index) => {
                 const isLastOddMobile =
                   categoryCards.length % 2 === 1 &&
@@ -474,8 +493,8 @@ export function CanliMenuView({
                           fill
                           sizes={
                             isLastOddMobile
-                              ? "(max-width: 767px) 132px, 290px"
-                              : "(max-width: 767px) calc((100vw - 44px) / 2), 290px"
+                              ? "(max-width: 767px) 132px, (max-width: 1023px) calc((100vw - 96px) / 3), (max-width: 1279px) calc((100vw - 104px) / 3), (max-width: 1519px) calc((100vw - 140px) / 4), 345px"
+                              : "(max-width: 767px) calc((100vw - 44px) / 2), (max-width: 1023px) calc((100vw - 96px) / 3), (max-width: 1279px) calc((100vw - 104px) / 3), (max-width: 1519px) calc((100vw - 140px) / 4), 345px"
                           }
                           loading={index < 6 ? "eager" : "lazy"}
                           fetchPriority={
@@ -520,7 +539,7 @@ export function CanliMenuView({
 
         {/* ARAMA SONUÇLARI (TÜM MENÜ) */}
         {isSearching && (
-          <div>
+          <div className="@container">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-2 rounded-[12px] border-[1.5px] border-[var(--menu-border-strong)] bg-[var(--menu-band-bg)] px-4 py-2.5 text-[13px] font-semibold text-[var(--menu-band-text)]">
               <span>{dict.search.resultsForQuery(trimmedQuery, totalMatches)}</span>
               <button
@@ -597,7 +616,7 @@ export function CanliMenuView({
                         </span>
                       </div>
 
-                      <div className="space-y-3">
+                      <div className="grid grid-cols-1 gap-3 @[1040px]:grid-cols-2 @[1040px]:gap-4">
                         {section.items.map((item, itemIdx) => (
                           <CanliItemRow
                             key={item.id}
@@ -616,54 +635,118 @@ export function CanliMenuView({
           </div>
         )}
 
-        {/* SEÇİLİ KATEGORİ ÜRÜN LİSTESİ (Tek Sütun) */}
+        {/* SEÇİLİ KATEGORİ ÜRÜN LİSTESİ */}
         {showItemList && activeCategorySection && activeCategoryText && (
-          <section
-            aria-labelledby={`canli-heading-${activeCategorySection.category.id}`}
-          >
-            <div className="mb-3 flex items-center justify-between gap-2.5 rounded-[12px] border-[1.5px] border-[var(--menu-border-strong)] bg-[var(--menu-band-bg)] px-3.5 py-2 shadow-[2px_2px_0_var(--menu-shadow-ink)] md:mb-4 md:items-end md:rounded-[14px] md:px-4 md:py-3 md:shadow-[3px_3px_0_var(--menu-shadow-ink)]">
-              <div className="flex min-w-0 items-center gap-2 md:block">
-                <span className="inline-flex shrink-0 items-center rounded-full border border-[var(--menu-border-strong)] bg-[var(--menu-bg)] px-2 py-0.5 text-[11px] font-extrabold tabular-nums text-[var(--menu-accent)] md:hidden">
-                  {activeCategorySection.orderLabel}
-                </span>
-                <span className="hidden rounded-full border border-[var(--menu-border-strong)] bg-[var(--menu-bg)] px-2.5 py-0.5 text-[11px] font-extrabold tabular-nums text-[var(--menu-accent)] md:inline-block">
-                  {activeCategorySection.orderLabel} ·{" "}
-                  {activeCategoryText.shortLabel}
-                </span>
-                <h2
-                  id={`canli-heading-${activeCategorySection.category.id}`}
-                  style={livelyHeadingFont}
-                  className="font-lively-display text-[20px] leading-[1.15] font-extrabold tracking-[-0.015em] text-[var(--menu-band-text)] md:mt-1.5 md:text-[30px] md:leading-[1.12]"
+          <div className="lg:grid lg:grid-cols-[236px_minmax(0,1fr)] lg:items-start lg:gap-7 xl:grid-cols-[256px_minmax(0,1fr)] xl:gap-8">
+            <aside
+              aria-label={dict.nav.categoriesLabel}
+              style={{
+                top: `${stickyTopOffset + 20}px`,
+                maxHeight: `calc(100dvh - ${stickyTopOffset + 40}px)`,
+              }}
+              className="hidden lg:sticky lg:block lg:overflow-y-auto lg:pr-1 lg:pb-2"
+            >
+              <div className="rounded-[16px] border-[1.5px] border-[var(--menu-border-strong)] bg-[var(--menu-surface)] p-3.5 shadow-[3px_3px_0_var(--menu-shadow-ink)]">
+                <button
+                  type="button"
+                  onClick={onBackToCategories}
+                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-[10px] border-[1.5px] border-[var(--menu-border-strong)] bg-[var(--menu-band-bg)] px-3 py-2 text-[12.5px] font-bold text-[var(--menu-band-text)] shadow-[2px_2px_0_var(--menu-shadow-ink)] transition-colors hover:bg-[var(--menu-accent)] hover:text-[var(--menu-accent-contrast)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)]"
                 >
-                  <span className="md:hidden">
+                  <span aria-hidden="true">←</span>
+                  <span>{dict.nav.backToCategories}</span>
+                </button>
+
+                <nav aria-label={dict.nav.categoriesLabel} className="mt-3.5">
+                  <p className="px-1.5 pb-1.5 text-[11px] font-extrabold tracking-[0.08em] uppercase text-[var(--menu-text-secondary)]">
+                    {dict.nav.categoriesPill}
+                  </p>
+                  <ul className="space-y-1">
+                    {categories.map((category, idx) => {
+                      const isActive = category.id === activeCategoryId;
+                      const orderLabel = String(idx + 1).padStart(2, "0");
+                      const { name } = getCategoryText(category, language);
+
+                      return (
+                        <li key={category.id}>
+                          <button
+                            type="button"
+                            onClick={() => onSelectCategory(category.id)}
+                            aria-current={isActive ? "true" : undefined}
+                            className={`flex w-full items-start gap-2 rounded-[10px] border-[1.5px] px-2.5 py-2 text-left text-[13px] leading-[1.3] font-bold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] ${
+                              isActive
+                                ? "border-[var(--menu-accent)] bg-[var(--menu-accent)] text-[var(--menu-accent-contrast)]"
+                                : "border-transparent text-[var(--menu-text)] hover:border-[var(--menu-border-strong)] hover:bg-[var(--menu-band-bg)] hover:text-[var(--menu-band-text)]"
+                            }`}
+                          >
+                            <span
+                              className={`mt-[1px] shrink-0 text-[11px] font-extrabold tabular-nums ${
+                                isActive
+                                  ? "text-[var(--menu-accent-contrast)] opacity-85"
+                                  : "text-[var(--menu-accent)]"
+                              }`}
+                            >
+                              {orderLabel}
+                            </span>
+                            <span className="min-w-0 flex-1">{name}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </nav>
+              </div>
+            </aside>
+
+            <section
+              aria-labelledby={`canli-heading-${activeCategorySection.category.id}`}
+              className="min-w-0 @container"
+            >
+              <div className="mb-3 flex items-center justify-between gap-2.5 rounded-[12px] border-[1.5px] border-[var(--menu-border-strong)] bg-[var(--menu-band-bg)] px-3.5 py-2 shadow-[2px_2px_0_var(--menu-shadow-ink)] md:mb-4 md:items-end md:rounded-[14px] md:px-4 md:py-3 md:shadow-[3px_3px_0_var(--menu-shadow-ink)]">
+                <div className="flex min-w-0 items-center gap-2 md:block">
+                  <span className="inline-flex shrink-0 items-center rounded-full border border-[var(--menu-border-strong)] bg-[var(--menu-bg)] px-2 py-0.5 text-[11px] font-extrabold tabular-nums text-[var(--menu-accent)] md:hidden">
+                    {activeCategorySection.orderLabel}
+                  </span>
+                  <span className="hidden rounded-full border border-[var(--menu-border-strong)] bg-[var(--menu-bg)] px-2.5 py-0.5 text-[11px] font-extrabold tabular-nums text-[var(--menu-accent)] md:inline-block">
+                    {activeCategorySection.orderLabel} ·{" "}
                     {activeCategoryText.shortLabel}
                   </span>
-                  <span className="hidden md:inline">
-                    {activeCategoryText.name}
-                  </span>
-                </h2>
+                  <h2
+                    id={`canli-heading-${activeCategorySection.category.id}`}
+                    style={livelyHeadingFont}
+                    className="font-lively-display text-[20px] leading-[1.15] font-extrabold tracking-[-0.015em] text-[var(--menu-band-text)] md:mt-1.5 md:text-[30px] md:leading-[1.12]"
+                  >
+                    <span className="md:hidden">
+                      {activeCategoryText.shortLabel}
+                    </span>
+                    <span className="hidden md:inline">
+                      {activeCategoryText.name}
+                    </span>
+                  </h2>
+                </div>
+                <span className="shrink-0 rounded-[8px] border border-[var(--menu-border-strong)] bg-[var(--menu-bg)] px-2.5 py-0.5 text-[12px] font-extrabold text-[var(--menu-text)] md:py-1">
+                  {dict.counts.items(activeCategorySection.items.length)}
+                </span>
               </div>
-              <span className="shrink-0 rounded-[8px] border border-[var(--menu-border-strong)] bg-[var(--menu-bg)] px-2.5 py-0.5 text-[12px] font-extrabold text-[var(--menu-text)] md:py-1">
-                {dict.counts.items(activeCategorySection.items.length)}
-              </span>
-            </div>
 
-            <div className="space-y-3">
-              {activeCategorySection.items.map((item, idx) => (
-                <CanliItemRow
-                  key={item.id}
-                  item={item}
-                  onSelect={onSelectItem}
-                  language={language}
-                  eager={idx < 4}
-                />
-              ))}
-            </div>
-          </section>
+              <div className="grid grid-cols-1 gap-3 @[1040px]:grid-cols-2 @[1040px]:gap-4">
+                {activeCategorySection.items.map((item, idx) => (
+                  <CanliItemRow
+                    key={item.id}
+                    item={item}
+                    onSelect={onSelectItem}
+                    language={language}
+                    eager={idx < 4}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
         )}
       </main>
 
-      <footer className="mx-auto w-full max-w-[980px] px-4 pb-10 md:px-8">
+      <footer
+        className={`mx-auto w-full px-4 pb-10 ${getThemeContainerClass("canli")}`}
+      >
         <div className="border-t-[1.5px] border-[var(--menu-border-strong)] pt-4 text-[12.5px] font-medium text-[var(--menu-text-secondary)]">
           <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
             <span>

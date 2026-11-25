@@ -10,6 +10,7 @@ import type {
   MenuLanguage,
 } from "@/types/menu";
 import { BrandMark } from "./BrandMark";
+import { getThemeContainerClass } from "./layout-tokens";
 import { MenuImage } from "./MenuImage";
 
 export type KlasikViewMode = "categories" | "items";
@@ -60,7 +61,7 @@ function KlasikItemRow({
     <button
       type="button"
       onClick={(event) => onSelect(item, event.currentTarget)}
-      className="group flex w-full items-center gap-3 px-3.5 py-3 text-left transition-colors duration-150 hover:bg-[var(--menu-surface-hover)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--menu-focus)] md:gap-4 md:px-4 md:py-3.5"
+      className="group flex h-full w-full items-center gap-3 px-3.5 py-3 text-left transition-colors duration-150 hover:bg-[var(--menu-surface-hover)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--menu-focus)] md:gap-4 md:px-4 md:py-3.5"
     >
       {item.image && (
         <div className="relative h-[84px] w-[84px] shrink-0 overflow-hidden rounded-[9px] border border-[var(--menu-border)] bg-[var(--menu-surface-muted)] md:h-[92px] md:w-[92px]">
@@ -161,6 +162,7 @@ export function KlasikQrMenuView({
     const strip = scrollStripRef.current;
     const activeTab = tabRefs.current[activeCategoryId];
     if (!strip || !activeTab) return;
+    if (strip.scrollWidth <= strip.clientWidth) return;
 
     const stripRect = strip.getBoundingClientRect();
     const tabRect = activeTab.getBoundingClientRect();
@@ -230,7 +232,9 @@ export function KlasikQrMenuView({
     >
       {/* Kompakt İşletme Başlığı */}
       <header className="border-b border-[var(--menu-border)] bg-[var(--menu-surface)]">
-        <div className="mx-auto w-full max-w-[860px] px-4 py-2.5 md:px-8 md:py-3.5">
+        <div
+          className={`mx-auto w-full px-4 py-2.5 md:py-3.5 ${getThemeContainerClass("klasik")}`}
+        >
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2.5 md:gap-3">
               <div
@@ -354,132 +358,12 @@ export function KlasikQrMenuView({
         </div>
       </header>
 
-      {/* Kategori Seçilince Açılan Sabit Dönüş + Yatay Fotoğraflı Kategori Şeridi */}
-      {showItemList && (
-        <div
-          ref={navRef}
-          style={{
-            top: `${stickyTopOffset}px`,
-            backgroundColor: "var(--menu-bg-glass)",
-          }}
-          className="sticky z-30 border-b border-[var(--menu-border)] backdrop-blur-sm"
-        >
-          <div className="mx-auto w-full max-w-[860px] px-4 py-2.5 md:px-8 md:py-3">
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <button
-                type="button"
-                onClick={onBackToCategories}
-                className="inline-flex items-center gap-1.5 rounded-[8px] border border-[var(--menu-border-strong)] bg-[var(--menu-surface-muted)] px-3 py-1.5 text-[12.5px] font-semibold text-[var(--menu-text)] transition-colors hover:border-[var(--menu-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)]"
-              >
-                <span aria-hidden="true">←</span>
-                <span>{dict.nav.backToCategories}</span>
-              </button>
-              <span className="text-[11.5px] font-medium text-[var(--menu-text-secondary)]">
-                {dict.counts.items(activeSection?.items.length ?? 0)}
-              </span>
-            </div>
-
-            <div className="relative">
-              <nav
-                ref={scrollStripRef}
-                aria-label={dict.nav.categoriesLabel}
-                className={`no-scrollbar flex items-stretch gap-2.5 overflow-x-auto pb-0.5 ${
-                  canScrollRight ? "pr-6" : ""
-                }`}
-              >
-                {categories.map((category, catIdx) => {
-                  const isActive = category.id === activeCategoryId;
-                  const catText = getCategoryText(category, language);
-
-                  return (
-                    <button
-                      key={category.id}
-                      ref={(el) => {
-                        tabRefs.current[category.id] = el;
-                      }}
-                      type="button"
-                      onClick={() => {
-                        if (isSearching) onClearSearch();
-                        onSelectCategory(category.id);
-                      }}
-                      aria-current={isActive ? "true" : undefined}
-                      className="group flex w-[112px] shrink-0 flex-col items-stretch text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] md:w-[138px]"
-                    >
-                      <div
-                        className={`relative h-[66px] w-full overflow-hidden rounded-[9px] bg-[var(--menu-surface-muted)] transition-all duration-150 md:h-[76px] ${
-                          isActive
-                            ? "ring-2 ring-[var(--menu-accent)] ring-offset-1 ring-offset-[var(--menu-surface)]"
-                            : "border border-[var(--menu-border)] opacity-85 group-hover:opacity-100"
-                        }`}
-                      >
-                        {category.coverImageUrl && (
-                          <MenuImage
-                            src={category.coverImageUrl}
-                            alt={catText.coverImageAlt}
-                            preset="category-strip"
-                            fill
-                            sizes="(min-width: 768px) 138px, 112px"
-                            loading={catIdx < 5 ? "eager" : "lazy"}
-                            style={{
-                              objectPosition:
-                                category.coverObjectPosition?.klasik ??
-                                "center center",
-                            }}
-                            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                          />
-                        )}
-                        <div
-                          aria-hidden="true"
-                          className="pointer-events-none absolute inset-x-0 bottom-0 h-[62%] bg-gradient-to-t from-black/80 via-black/35 to-transparent"
-                        />
-                        <span
-                          className={`absolute inset-x-2 bottom-1.5 truncate text-[12.5px] leading-[1.15] text-white md:text-[13.5px] ${
-                            isActive ? "font-bold" : "font-medium"
-                          }`}
-                        >
-                          {catText.shortLabel}
-                        </span>
-                      </div>
-
-                      <span
-                        aria-hidden="true"
-                        className={`mt-1.5 h-[3px] w-full rounded-full transition-colors ${
-                          isActive ? "bg-[var(--menu-accent)]" : "bg-transparent"
-                        }`}
-                      />
-                    </button>
-                  );
-                })}
-              </nav>
-
-              {canScrollLeft && (
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-y-0 left-0 flex w-6 items-center bg-gradient-to-r from-[var(--menu-surface)] via-[var(--menu-bg-glass)] to-transparent"
-                >
-                  <span className="text-[14px] font-bold text-[var(--menu-text)]">
-                    ‹
-                  </span>
-                </div>
-              )}
-
-              {canScrollRight && (
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-y-0 right-0 flex w-7 items-center justify-end bg-gradient-to-l from-[var(--menu-surface)] via-[var(--menu-bg-glass)] to-transparent pr-0.5"
-                >
-                  <span className="text-[14px] font-bold text-[var(--menu-text)]">
-                    ›
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* İçerik: Açılış Kategori Kartları, Ürün Listesi veya Arama Sonuçları */}
-      <main className="mx-auto w-full max-w-[860px] px-4 pt-3.5 pb-16 md:px-8 md:pt-5">
+      <main
+        className={`mx-auto w-full px-4 pb-16 ${
+          showItemList ? "pt-0 lg:pt-5" : "pt-3.5 md:pt-5"
+        } ${getThemeContainerClass("klasik")}`}
+      >
         {showCategoryCards && (
           <section aria-label={dict.nav.categoriesLabel}>
             <div className="mb-3 flex items-baseline justify-between gap-2 px-0.5">
@@ -494,7 +378,7 @@ export function KlasikQrMenuView({
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:gap-5 xl:grid-cols-4 xl:gap-5">
               {categoryCards.map((card, index) => {
                 const isLastOddMobile =
                   categoryCards.length % 2 === 1 &&
@@ -524,8 +408,8 @@ export function KlasikQrMenuView({
                           fill
                           sizes={
                             isLastOddMobile
-                              ? "(max-width: 767px) calc(100vw - 32px), 255px"
-                              : "(max-width: 767px) calc((100vw - 44px) / 2), 255px"
+                              ? "(max-width: 767px) calc(100vw - 32px), (max-width: 1023px) calc((100vw - 96px) / 3), (max-width: 1279px) calc((100vw - 104px) / 3), (max-width: 1479px) calc((100vw - 140px) / 4), 335px"
+                              : "(max-width: 767px) calc((100vw - 44px) / 2), (max-width: 1023px) calc((100vw - 96px) / 3), (max-width: 1279px) calc((100vw - 104px) / 3), (max-width: 1479px) calc((100vw - 140px) / 4), 335px"
                           }
                           loading={index < 6 ? "eager" : "lazy"}
                           fetchPriority={
@@ -558,7 +442,7 @@ export function KlasikQrMenuView({
         )}
 
         {isSearching && (
-          <div>
+          <div className="@container">
             <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 rounded-[10px] border border-[var(--menu-border)] bg-[var(--menu-surface)] px-3.5 py-2.5 text-[13px] text-[var(--menu-text)]">
               <span>{dict.search.resultsCompact(trimmedQuery, totalMatches)}</span>
               <button
@@ -613,15 +497,19 @@ export function KlasikQrMenuView({
                         </span>
                       </div>
 
-                      <div className="divide-y divide-[var(--menu-border)] overflow-hidden rounded-[12px] border border-[var(--menu-border)] bg-[var(--menu-surface)]">
+                      <div className="grid grid-cols-1 overflow-hidden rounded-[12px] border border-[var(--menu-border)] bg-[var(--menu-surface)] @[1060px]:grid-cols-2">
                         {section.items.map((item, itemIdx) => (
-                          <KlasikItemRow
+                          <div
                             key={item.id}
-                            item={item}
-                            onSelect={onSelectItem}
-                            language={language}
-                            eager={sectionIdx === 0 && itemIdx < 4}
-                          />
+                            className="border-t border-[var(--menu-border)] first:border-t-0 @[1060px]:[&:nth-child(2)]:border-t-0 @[1060px]:odd:border-r"
+                          >
+                            <KlasikItemRow
+                              item={item}
+                              onSelect={onSelectItem}
+                              language={language}
+                              eager={sectionIdx === 0 && itemIdx < 4}
+                            />
+                          </div>
                         ))}
                       </div>
                     </section>
@@ -632,45 +520,198 @@ export function KlasikQrMenuView({
           </div>
         )}
 
+        {/* Tek DOM Fotoğraflı Kategori Gezinmesi (<lg üst şerit, lg+ sol yan panel) + Ürün Listesi */}
         {showItemList && activeSection && activeSectionText && (
-          <section
-            aria-labelledby={`klasik-heading-${activeSection.category.id}`}
-          >
-            <div className="mb-2.5 flex items-baseline justify-between gap-3 px-0.5">
-              <div className="min-w-0">
-                <h2
-                  id={`klasik-heading-${activeSection.category.id}`}
-                  className="text-[17px] leading-[1.2] font-bold tracking-[-0.015em] text-[var(--menu-text)] md:text-[20px]"
+          <div className="lg:grid lg:grid-cols-[248px_minmax(0,1fr)] lg:items-start lg:gap-7 xl:grid-cols-[252px_minmax(0,1fr)] xl:gap-8">
+            <aside
+              ref={navRef}
+              aria-label={dict.nav.categoriesLabel}
+              style={
+                {
+                  "--klasik-sticky-top": `${stickyTopOffset}px`,
+                } as React.CSSProperties
+              }
+              className="sticky top-[var(--klasik-sticky-top)] z-30 -mx-4 border-b border-[var(--menu-border)] bg-[var(--menu-bg-glass)] px-4 py-2.5 backdrop-blur-sm md:-mx-8 md:px-8 md:py-3 lg:top-[calc(var(--klasik-sticky-top)+20px)] lg:mx-0 lg:max-h-[calc(100dvh-var(--klasik-sticky-top)-40px)] lg:overflow-y-auto lg:rounded-[12px] lg:border lg:border-[var(--menu-border)] lg:bg-[var(--menu-surface)] lg:p-3 lg:backdrop-blur-none"
+            >
+              <div className="mb-2 flex items-center justify-between gap-2 lg:mb-2.5">
+                <button
+                  type="button"
+                  onClick={onBackToCategories}
+                  className="inline-flex items-center gap-1.5 rounded-[8px] border border-[var(--menu-border-strong)] bg-[var(--menu-surface-muted)] px-3 py-1.5 text-[12.5px] font-semibold text-[var(--menu-text)] transition-colors hover:border-[var(--menu-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] lg:w-full lg:justify-center"
                 >
-                  <span className="md:hidden">
-                    {activeSectionText.shortLabel}
-                  </span>
-                  <span className="hidden md:inline">
-                    {activeSectionText.name}
-                  </span>
-                </h2>
+                  <span aria-hidden="true">←</span>
+                  <span>{dict.nav.backToCategories}</span>
+                </button>
+                <span className="text-[11.5px] font-medium text-[var(--menu-text-secondary)] lg:hidden">
+                  {dict.counts.items(activeSection.items.length)}
+                </span>
               </div>
-              <span className="shrink-0 text-[12.5px] font-medium text-[var(--menu-text-secondary)]">
-                {dict.counts.items(activeSection.items.length)}
-              </span>
-            </div>
 
-            <div className="divide-y divide-[var(--menu-border)] overflow-hidden rounded-[12px] border border-[var(--menu-border)] bg-[var(--menu-surface)]">
-              {activeSection.items.map((item, idx) => (
-                <KlasikItemRow
-                  key={item.id}
-                  item={item}
-                  onSelect={onSelectItem}
-                  language={language}
-                  eager={idx < 4}
-                />
-              ))}
-            </div>
-          </section>
+              <div className="relative">
+                <nav
+                  ref={scrollStripRef}
+                  aria-label={dict.nav.categoriesLabel}
+                  className={`no-scrollbar flex items-stretch gap-2.5 overflow-x-auto pb-0.5 lg:flex-col lg:gap-1 lg:overflow-x-visible lg:pb-0 ${
+                    canScrollRight ? "pr-6 lg:pr-0" : ""
+                  }`}
+                >
+                  {categories.map((category, catIdx) => {
+                    const isActive = category.id === activeCategoryId;
+                    const catText = getCategoryText(category, language);
+                    const count = allItems.filter(
+                      (item) => item.categoryId === category.id
+                    ).length;
+
+                    return (
+                      <button
+                        key={category.id}
+                        ref={(el) => {
+                          tabRefs.current[category.id] = el;
+                        }}
+                        type="button"
+                        onClick={() => {
+                          if (isSearching) onClearSearch();
+                          onSelectCategory(category.id);
+                        }}
+                        aria-current={isActive ? "true" : undefined}
+                        className={`group flex w-[112px] shrink-0 flex-col items-stretch text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)] md:w-[138px] lg:w-full lg:flex-row lg:items-center lg:gap-2.5 lg:rounded-[9px] lg:border lg:p-1 ${
+                          isActive
+                            ? "lg:border-[var(--menu-accent)] lg:bg-[var(--menu-surface-muted)]"
+                            : "lg:border-transparent lg:hover:border-[var(--menu-border)] lg:hover:bg-[var(--menu-surface-hover)]"
+                        }`}
+                      >
+                        <div
+                          className={`relative h-[66px] w-full overflow-hidden rounded-[9px] bg-[var(--menu-surface-muted)] transition-all duration-150 md:h-[76px] lg:h-[40px] lg:w-[56px] lg:shrink-0 lg:rounded-[7px] ${
+                            isActive
+                              ? "ring-2 ring-[var(--menu-accent)] ring-offset-1 ring-offset-[var(--menu-surface)] lg:ring-0 lg:ring-offset-0"
+                              : "border border-[var(--menu-border)] opacity-85 group-hover:opacity-100 lg:opacity-100"
+                          }`}
+                        >
+                          {category.coverImageUrl && (
+                            <MenuImage
+                              src={category.coverImageUrl}
+                              alt={catText.coverImageAlt}
+                              preset="category-strip"
+                              fill
+                              sizes="(min-width: 1024px) 56px, (min-width: 768px) 138px, 112px"
+                              loading={catIdx < 5 ? "eager" : "lazy"}
+                              style={{
+                                objectPosition:
+                                  category.coverObjectPosition?.klasik ??
+                                  "center center",
+                              }}
+                              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                            />
+                          )}
+                          <div
+                            aria-hidden="true"
+                            className="pointer-events-none absolute inset-x-0 bottom-0 h-[62%] bg-gradient-to-t from-black/80 via-black/35 to-transparent lg:hidden"
+                          />
+                          <span
+                            className={`absolute inset-x-2 bottom-1.5 truncate text-[12.5px] leading-[1.15] text-white md:text-[13.5px] lg:hidden ${
+                              isActive ? "font-bold" : "font-medium"
+                            }`}
+                          >
+                            {catText.shortLabel}
+                          </span>
+                        </div>
+
+                        <span
+                          aria-hidden="true"
+                          className={`mt-1.5 h-[3px] w-full rounded-full transition-colors lg:hidden ${
+                            isActive ? "bg-[var(--menu-accent)]" : "bg-transparent"
+                          }`}
+                        />
+
+                        <div className="hidden min-w-0 flex-1 lg:flex lg:flex-col">
+                          <span
+                            className={`truncate text-[13px] leading-[1.25] ${
+                              isActive
+                                ? "font-bold text-[var(--menu-accent)]"
+                                : "font-semibold text-[var(--menu-text)]"
+                            }`}
+                          >
+                            {catText.shortLabel}
+                          </span>
+                          <span className="mt-0.5 text-[11px] font-medium tabular-nums text-[var(--menu-text-secondary)]">
+                            {dict.counts.items(count)}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </nav>
+
+                {canScrollLeft && (
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-y-0 left-0 flex w-6 items-center bg-gradient-to-r from-[var(--menu-surface)] via-[var(--menu-bg-glass)] to-transparent lg:hidden"
+                  >
+                    <span className="text-[14px] font-bold text-[var(--menu-text)]">
+                      ‹
+                    </span>
+                  </div>
+                )}
+
+                {canScrollRight && (
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-y-0 right-0 flex w-7 items-center justify-end bg-gradient-to-l from-[var(--menu-surface)] via-[var(--menu-bg-glass)] to-transparent pr-0.5 lg:hidden"
+                  >
+                    <span className="text-[14px] font-bold text-[var(--menu-text)]">
+                      ›
+                    </span>
+                  </div>
+                )}
+              </div>
+            </aside>
+
+            <section
+              aria-labelledby={`klasik-heading-${activeSection.category.id}`}
+              className="min-w-0 pt-3.5 md:pt-5 lg:pt-0 @container"
+            >
+              <div className="mb-2.5 flex items-baseline justify-between gap-3 px-0.5">
+                <div className="min-w-0">
+                  <h2
+                    id={`klasik-heading-${activeSection.category.id}`}
+                    className="text-[17px] leading-[1.2] font-bold tracking-[-0.015em] text-[var(--menu-text)] md:text-[20px] lg:text-[23px]"
+                  >
+                    <span className="md:hidden">
+                      {activeSectionText.shortLabel}
+                    </span>
+                    <span className="hidden md:inline">
+                      {activeSectionText.name}
+                    </span>
+                  </h2>
+                </div>
+                <span className="shrink-0 text-[12.5px] font-medium text-[var(--menu-text-secondary)]">
+                  {dict.counts.items(activeSection.items.length)}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 overflow-hidden rounded-[12px] border border-[var(--menu-border)] bg-[var(--menu-surface)] @[1060px]:grid-cols-2">
+                {activeSection.items.map((item, idx) => (
+                  <div
+                    key={item.id}
+                    className="border-t border-[var(--menu-border)] first:border-t-0 @[1060px]:[&:nth-child(2)]:border-t-0 @[1060px]:odd:border-r"
+                  >
+                    <KlasikItemRow
+                      item={item}
+                      onSelect={onSelectItem}
+                      language={language}
+                      eager={idx < 4}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
         )}
       </main>
 
-      <footer className="mx-auto w-full max-w-[860px] px-4 pb-10 md:px-8">
+      <footer
+        className={`mx-auto w-full px-4 pb-10 ${getThemeContainerClass("klasik")}`}
+      >
         <div className="border-t border-[var(--menu-border)] pt-4 text-[12px] text-[var(--menu-text-secondary)]">
           <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
             <span>

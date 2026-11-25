@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getCategoryText, getUiDictionary } from "@/lib/i18n";
 import type { MenuCategory, MenuLanguage } from "@/types/menu";
+import { getThemeContainerClass } from "./layout-tokens";
 
 interface CategoryNavProps {
   categories: MenuCategory[];
@@ -97,9 +98,11 @@ export function CategoryNav({
         top: `${stickyTopOffset}px`,
         backgroundColor: "var(--menu-bg-glass)",
       }}
-      className="sticky z-30 border-y border-[var(--menu-border-strong)] backdrop-blur-sm"
+      className="sticky z-30 border-y border-[var(--menu-border-strong)] backdrop-blur-sm lg:hidden"
     >
-      <div className="mx-auto flex w-full max-w-[820px] items-stretch px-4 md:px-8">
+      <div
+        className={`mx-auto flex w-full items-stretch px-4 ${getThemeContainerClass("ozel")}`}
+      >
         <div className="relative min-w-0 flex-1">
           <nav
             ref={scrollStripRef}
@@ -210,7 +213,9 @@ export function CategoryNav({
           id="menu-search-panel"
           className="border-t border-[var(--menu-border)] bg-[var(--menu-bg)]"
         >
-          <div className="mx-auto flex w-full max-w-[820px] items-center gap-2 px-4 py-2 md:px-8">
+          <div
+            className={`mx-auto flex w-full items-center gap-2 px-4 py-2 ${getThemeContainerClass("ozel")}`}
+          >
             <label htmlFor="menu-search-input" className="sr-only">
               {dict.nav.searchInputLabel}
             </label>

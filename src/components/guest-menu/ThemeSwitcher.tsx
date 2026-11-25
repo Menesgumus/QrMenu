@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getUiDictionary, VALID_THEME_LIST } from "./theme-options";
 import type { ColorMode, MenuLanguage, MenuThemeId } from "@/types/menu";
+import { getThemeContainerClass } from "./layout-tokens";
 import { ShareMenu } from "./ShareMenu";
+import { getUiDictionary, VALID_THEME_LIST } from "./theme-options";
 import { VisitorControls } from "./VisitorControls";
 
 interface ThemeSwitcherProps {
@@ -273,7 +274,9 @@ export function ThemeSwitcher({
       style={{ backgroundColor: "var(--menu-switcher-bg)" }}
       className={`sticky top-0 z-40 border-b border-[var(--menu-switcher-border)] backdrop-blur-sm ${chrome.fontClass}`}
     >
-      <div className="mx-auto flex w-full max-w-[1220px] items-center justify-between gap-2 px-3 py-1.5 sm:px-4 md:px-8">
+      <div
+        className={`mx-auto flex w-full items-center justify-between gap-2 px-3 py-1.5 sm:px-4 ${getThemeContainerClass(activeTheme)}`}
+      >
         <div ref={containerRef} className="relative min-w-0">
           <button
             ref={buttonRef}

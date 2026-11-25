@@ -1,6 +1,7 @@
 import { getUiDictionary } from "@/lib/i18n";
 import type { BusinessProfile, MenuLanguage } from "@/types/menu";
 import { BrandMark } from "./BrandMark";
+import { getThemeContainerClass } from "./layout-tokens";
 
 interface MenuHeaderProps {
   business: BusinessProfile;
@@ -17,9 +18,11 @@ export function MenuHeader({
   const uppercaseName = business.name.toLocaleUpperCase("tr-TR");
 
   return (
-    <header className="mx-auto w-full max-w-[820px] px-4 pt-3 pb-2.5 md:px-8 md:pt-8 md:pb-5">
+    <header
+      className={`mx-auto w-full px-4 pt-3 pb-2.5 md:pt-8 md:pb-5 ${getThemeContainerClass("ozel")}`}
+    >
       <div className="border-t-2 border-[var(--menu-border-strong)] pt-2.5 md:pt-4">
-        <div className="md:grid md:grid-cols-[1.25fr_0.95fr] md:items-end md:gap-8">
+        <div className="md:grid md:grid-cols-[1.25fr_0.95fr] md:items-end md:gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,460px)] xl:gap-12">
           <div className="flex items-start justify-between gap-3">
             <h1 className="font-display text-[36px] leading-[0.94] font-extrabold tracking-[-0.01em] text-[var(--menu-text)] md:text-[56px] md:leading-[0.9]">
               {uppercaseName}

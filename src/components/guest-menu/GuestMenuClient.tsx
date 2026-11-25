@@ -270,6 +270,10 @@ export function GuestMenuClient({
   const [ferahOpenCategoryIds, setFerahOpenCategoryIds] = useState<string[]>(
     () => (sortedCategories[0] ? [sortedCategories[0].id] : [])
   );
+  const [ferahScrollRequest, setFerahScrollRequest] = useState<{
+    categoryId: string;
+    nonce: number;
+  } | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
@@ -372,20 +376,66 @@ export function GuestMenuClient({
   // Measure sticky category bar height whenever active theme, search panel, or mode changes
   useEffect(() => {
     const node = navRef.current;
-    if (!node) return;
+    if (!node) {
+      setStickyHeight(0);
+      return;
+    }
 
     const updateHeight = () => {
-      setStickyHeight(Math.ceil(node.getBoundingClientRect().height));
+      const rect = node.getBoundingClientRect();
+      setStickyHeight(rect.height > 0 ? Math.ceil(rect.height) : 0);
     };
 
     updateHeight();
+    window.addEventListener("resize", updateHeight);
 
+    let observer: ResizeObserver | undefined;
     if (typeof ResizeObserver !== "undefined") {
-      const observer = new ResizeObserver(updateHeight);
+      observer = new ResizeObserver(updateHeight);
       observer.observe(node);
-      return () => observer.disconnect();
     }
+
+    return () => {
+      window.removeEventListener("resize", updateHeight);
+      observer?.disconnect();
+    };
   }, [activeTheme, searchOpen, canliViewMode, klasikViewMode, vitrinViewMode]);
+
+  // Ferah desktop sidebar: scroll AFTER newly opened accordion is committed to the DOM
+  useEffect(() => {
+    if (!ferahScrollRequest || activeTheme !== "ferah") return;
+
+    let raf1 = 0;
+    let raf2 = 0;
+
+    raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => {
+        const el = document.getElementById(
+          `ferah-section-${ferahScrollRequest.categoryId}`
+        );
+        if (!el) return;
+
+        const currentSwitcherH = switcherRef.current
+          ? Math.ceil(switcherRef.current.getBoundingClientRect().height)
+          : switcherHeight;
+
+        const offsetTop =
+          el.getBoundingClientRect().top +
+          window.scrollY -
+          (currentSwitcherH + 16);
+
+        window.scrollTo({
+          top: Math.max(0, offsetTop),
+          behavior: "smooth",
+        });
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(raf1);
+      window.cancelAnimationFrame(raf2);
+    };
+  }, [ferahScrollRequest, activeTheme, switcherHeight]);
 
   // Preserve the visible category on screen after switching between themes
   useEffect(() => {
@@ -601,6 +651,25 @@ export function GuestMenuClient({
     setFerahOpenCategoryIds([]);
   }, []);
 
+  const handleJumpToFerahCategory = useCallback(
+    (categoryId: string) => {
+      setActiveCategoryId(categoryId);
+      setHasExplicitCategorySelection(true);
+
+      if (!isSearching) {
+        setFerahOpenCategoryIds((prev) =>
+          prev.includes(categoryId) ? prev : [...prev, categoryId]
+        );
+      }
+
+      setFerahScrollRequest((prev) => ({
+        categoryId,
+        nonce: (prev?.nonce ?? 0) + 1,
+      }));
+    },
+    [isSearching]
+  );
+
   const handleSelectTheme = useCallback(
     (nextTheme: MenuThemeId) => {
       if (nextTheme === activeTheme) return;
@@ -802,8 +871,10 @@ export function GuestMenuClient({
           business={data.business}
           allItemsCount={publishedItems.length}
           visibleSections={visibleSections}
+          activeCategoryId={activeCategoryId}
           openCategoryIds={ferahOpenCategoryIds}
           onToggleCategory={handleToggleFerahCategory}
+          onJumpToCategory={handleJumpToFerahCategory}
           onExpandAll={handleExpandAllFerah}
           onCollapseAll={handleCollapseAllFerah}
           searchQuery={searchQuery}
@@ -813,6 +884,7 @@ export function GuestMenuClient({
           totalMatches={totalMatches}
           onSelectItem={handleSelectItem}
           language={effectiveLanguage}
+          stickyTopOffset={switcherHeight}
         />
       ) : activeTheme === "canli" ? (
         <CanliMenuView

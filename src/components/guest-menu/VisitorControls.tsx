@@ -2,6 +2,7 @@
 
 import { getUiDictionary } from "@/lib/i18n";
 import type { ColorMode, MenuLanguage, MenuThemeId } from "@/types/menu";
+import { getThemeContainerClass } from "./layout-tokens";
 
 interface VisitorControlsProps {
   theme: MenuThemeId;
@@ -11,13 +12,13 @@ interface VisitorControlsProps {
   onSelectLanguage: (language: MenuLanguage) => void;
 }
 
-const CONTAINER_CLASSES: Record<MenuThemeId, string> = {
-  ozel: "max-w-[820px] font-sans",
-  gece: "max-w-[1220px] font-night-sans",
-  canli: "max-w-[980px] font-visual",
-  ferah: "max-w-[860px] font-ferah",
-  klasik: "max-w-[860px] font-klasik",
-  vitrin: "max-w-[960px] font-vitrin",
+const THEME_FONT_CLASSES: Record<MenuThemeId, string> = {
+  ozel: "font-sans",
+  gece: "font-night-sans",
+  canli: "font-visual",
+  ferah: "font-ferah",
+  klasik: "font-klasik",
+  vitrin: "font-vitrin",
 };
 
 function getControlShapeClass(theme: MenuThemeId): {
@@ -181,7 +182,7 @@ export function CustomerUtilityBar({
       className="border-b border-[var(--menu-border)] bg-[var(--menu-bg)]"
     >
       <div
-        className={`mx-auto flex w-full items-center justify-between gap-2 px-4 py-1.5 md:px-8 ${CONTAINER_CLASSES[theme]}`}
+        className={`mx-auto flex w-full items-center justify-between gap-2 px-4 py-1.5 ${getThemeContainerClass(theme)} ${THEME_FONT_CLASSES[theme]}`}
       >
         <span className="truncate text-[11px] font-medium tracking-[0.04em] uppercase text-[var(--menu-text-secondary)]">
           {dict.meta.dailyMenuEyebrow}

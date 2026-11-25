@@ -118,7 +118,11 @@ export function ItemDetailModal({
     >
       <div
         ref={dialogRef}
-        className={`flex max-h-[88dvh] w-full flex-col overflow-hidden text-[var(--menu-text)] sm:max-w-[560px] ${
+        className={`flex max-h-[88dvh] w-full flex-col overflow-hidden text-[var(--menu-text)] ${
+          item.image
+            ? "sm:max-w-[560px] md:max-w-[600px] lg:max-h-[85dvh] lg:max-w-[860px] xl:max-w-[940px]"
+            : "sm:max-w-[560px] md:max-w-[600px] lg:max-h-[85dvh]"
+        } ${
           isNight
             ? "rounded-t-[14px] border-t border-[var(--menu-border-strong)] bg-[var(--menu-surface)] sm:rounded-[12px] sm:border"
             : isCanli
@@ -171,83 +175,93 @@ export function ItemDetailModal({
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
-          {item.image && (
-            <div
-              className={`mb-4 overflow-hidden border p-1.5 ${
-                isCanli
-                  ? "rounded-[12px] border-[1.5px] border-[var(--menu-border-strong)] bg-[var(--menu-surface)]"
-                  : theme === "ozel"
-                    ? "rounded-[2px] border-[var(--menu-border)] bg-[var(--menu-surface-muted)]"
-                    : "rounded-[12px] border-[var(--menu-border)] bg-[var(--menu-surface-muted)]"
-              }`}
-            >
-              <MenuImage
-                src={item.image.fullUrl}
-                alt={imageAlt}
-                preset="detail-modal"
-                sizes="(min-width: 640px) 510px, calc(100vw - 52px)"
-                width={item.image.width}
-                height={item.image.height}
-                loading="eager"
-                decoding="async"
-                className={`mx-auto block h-auto w-auto max-w-full object-contain ${
-                  isNight || isCanli || isFerah || isKlasik
-                    ? "max-h-[38dvh] sm:max-h-[48dvh]"
-                    : isVitrin
-                      ? "max-h-[40dvh] sm:max-h-[48dvh]"
-                      : "max-h-[54dvh]"
-                }`}
-              />
-            </div>
-          )}
-
-          <h2
-            id="item-detail-title"
-            style={
-              isNight
-                ? { fontFamily: "var(--font-night-display), Georgia, serif" }
-                : isCanli
-                  ? {
-                      fontFamily:
-                        "var(--font-lively-display), system-ui, sans-serif",
-                    }
-                  : undefined
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 lg:p-6">
+          <div
+            className={
+              item.image
+                ? "lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-7"
+                : ""
             }
-            className={`text-[20px] leading-[1.26] text-[var(--menu-text)] md:text-[22px] ${
-              isNight
-                ? "font-night-display font-semibold tracking-[-0.01em]"
-                : isCanli
-                  ? "font-lively-display font-extrabold tracking-[-0.015em]"
-                  : isFerah || isKlasik
-                    ? "font-bold tracking-[-0.015em]"
-                    : isVitrin
-                      ? "font-semibold tracking-[-0.015em]"
-                      : "font-semibold"
-            }`}
           >
-            {fullName}
-          </h2>
+            {item.image && (
+              <div
+                className={`mb-4 overflow-hidden border p-1.5 lg:mb-0 ${
+                  isCanli
+                    ? "rounded-[12px] border-[1.5px] border-[var(--menu-border-strong)] bg-[var(--menu-surface)]"
+                    : theme === "ozel"
+                      ? "rounded-[2px] border-[var(--menu-border)] bg-[var(--menu-surface-muted)]"
+                      : "rounded-[12px] border-[var(--menu-border)] bg-[var(--menu-surface-muted)]"
+                }`}
+              >
+                <MenuImage
+                  src={item.image.fullUrl}
+                  alt={imageAlt}
+                  preset="detail-modal"
+                  sizes="(min-width: 1280px) 440px, (min-width: 1024px) 400px, (min-width: 768px) 546px, (min-width: 640px) 506px, calc(100vw - 52px)"
+                  width={item.image.width}
+                  height={item.image.height}
+                  loading="eager"
+                  decoding="async"
+                  className={`mx-auto block h-auto w-auto max-w-full object-contain ${
+                    isNight || isCanli || isFerah || isKlasik
+                      ? "max-h-[38dvh] sm:max-h-[48dvh] lg:max-h-[62dvh]"
+                      : isVitrin
+                        ? "max-h-[40dvh] sm:max-h-[48dvh] lg:max-h-[62dvh]"
+                        : "max-h-[54dvh] lg:max-h-[62dvh]"
+                  }`}
+                />
+              </div>
+            )}
 
-          <p
-            className={`mt-2 text-[18px] tabular-nums md:text-[20px] ${
-              isNight || isFerah
-                ? "font-bold text-[var(--menu-accent)]"
-                : isCanli
-                  ? "inline-flex rounded-[8px] bg-[var(--menu-accent)] px-3 py-0.5 font-extrabold text-[var(--menu-accent-contrast)]"
-                  : isKlasik || isVitrin
-                    ? "font-bold text-[var(--menu-text)]"
-                    : "font-semibold text-[var(--menu-text)]"
-            }`}
-          >
-            {formatPriceTRY(item.priceKurus)}
-          </p>
+            <div className="min-w-0">
+              <h2
+                id="item-detail-title"
+                style={
+                  isNight
+                    ? { fontFamily: "var(--font-night-display), Georgia, serif" }
+                    : isCanli
+                      ? {
+                          fontFamily:
+                            "var(--font-lively-display), system-ui, sans-serif",
+                        }
+                      : undefined
+                }
+                className={`text-[20px] leading-[1.26] text-[var(--menu-text)] md:text-[22px] lg:text-[24px] ${
+                  isNight
+                    ? "font-night-display font-semibold tracking-[-0.01em]"
+                    : isCanli
+                      ? "font-lively-display font-extrabold tracking-[-0.015em]"
+                      : isFerah || isKlasik
+                        ? "font-bold tracking-[-0.015em]"
+                        : isVitrin
+                          ? "font-semibold tracking-[-0.015em]"
+                          : "font-semibold"
+                }`}
+              >
+                {fullName}
+              </h2>
 
-          {description && (
-            <p className="mt-3 text-[15px] leading-[1.6] text-[var(--menu-text-secondary)]">
-              {description}
-            </p>
-          )}
+              <p
+                className={`mt-2 text-[18px] tabular-nums md:text-[20px] ${
+                  isNight || isFerah
+                    ? "font-bold text-[var(--menu-accent)]"
+                    : isCanli
+                      ? "inline-flex rounded-[8px] bg-[var(--menu-accent)] px-3 py-0.5 font-extrabold text-[var(--menu-accent-contrast)]"
+                      : isKlasik || isVitrin
+                        ? "font-bold text-[var(--menu-text)]"
+                        : "font-semibold text-[var(--menu-text)]"
+                }`}
+              >
+                {formatPriceTRY(item.priceKurus)}
+              </p>
+
+              {description && (
+                <p className="mt-3 text-[15px] leading-[1.6] text-[var(--menu-text-secondary)] lg:mt-4">
+                  {description}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

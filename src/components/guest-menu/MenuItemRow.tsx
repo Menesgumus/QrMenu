@@ -20,11 +20,11 @@ export function MenuItemRow({
   const formattedPrice = formatPriceTRY(item.priceKurus);
 
   return (
-    <article className="border-b border-[var(--menu-border)] last:border-b-0">
+    <article className="h-full border-b border-[var(--menu-border)] last:border-b-0 @[960px]:last:border-b">
       <button
         type="button"
         onClick={(event) => onSelect(item, event.currentTarget)}
-        className="group flex w-full items-start justify-between gap-3.5 py-3.5 text-left transition-colors duration-150 hover:bg-[var(--menu-surface-hover)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--menu-focus)] md:gap-5 md:py-4"
+        className="group flex h-full w-full items-start justify-between gap-3.5 py-3.5 text-left transition-colors duration-150 hover:bg-[var(--menu-surface-hover)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--menu-focus)] md:gap-5 md:py-4"
       >
         <div className="min-w-0 flex-1">
           <h3 className="text-[15.5px] leading-[1.32] font-semibold text-[var(--menu-text)] transition-colors duration-150 group-hover:text-[var(--menu-accent)] md:text-[16.5px]">
