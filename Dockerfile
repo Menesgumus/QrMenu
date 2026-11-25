@@ -37,8 +37,14 @@ RUN addgroup --system --gid 1001 nodejs \
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder /app/scripts/sync-hashed-release.mjs ./scripts/sync-hashed-release.mjs
+COPY --from=builder /app/scripts/start-server.mjs ./scripts/start-server.mjs
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+
+RUN mv /app/public/images/menu/hashed /app/.hashed-release \
+  && mkdir -p /app/public/images/menu/hashed /app/.hashed-state \
+  && chown -R nextjs:nodejs /app/.hashed-release /app/public/images/menu/hashed /app/.hashed-state
 
 USER nextjs
 
@@ -47,4 +53,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:3000/').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
-CMD ["./node_modules/.bin/next", "start", "-H", "0.0.0.0", "-p", "3000"]
+CMD ["node", "scripts/start-server.mjs"]

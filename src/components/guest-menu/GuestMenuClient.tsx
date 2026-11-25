@@ -1,6 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
+  Component,
+  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -8,7 +11,10 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
+import { PROTOTYPE_MENU } from "@/data/prototype-menu";
 import { matchesBilingualSearch, normalizeTurkish } from "@/lib/format";
 import {
   getBusinessDescription,
@@ -31,20 +37,163 @@ import type {
   MenuLanguage,
   MenuThemeId,
 } from "@/types/menu";
-import { CanliMenuView, type CanliViewMode } from "./CanliMenuView";
-import { CategoryNav } from "./CategoryNav";
-import { FerahMenuView } from "./FerahMenuView";
-import { ItemDetailModal } from "./ItemDetailModal";
-import { KlasikQrMenuView, type KlasikViewMode } from "./KlasikQrMenuView";
-import { MenuHeader } from "./MenuHeader";
-import { MenuItemRow } from "./MenuItemRow";
-import { NightMenuView } from "./NightMenuView";
-import { ThemeSwitcher } from "./ThemeSwitcher";
+import type { CanliViewMode } from "./CanliMenuView";
+import type { KlasikViewMode } from "./KlasikQrMenuView";
 import { CustomerUtilityBar } from "./VisitorControls";
-import { VitrinMenuView, type VitrinViewMode } from "./VitrinMenuView";
+import type { VitrinViewMode } from "./VitrinMenuView";
+
+const OzelMenuView = dynamic(() =>
+  import("./OzelMenuView").then((m) => m.OzelMenuView)
+);
+const NightMenuView = dynamic(() =>
+  import("./NightMenuView").then((m) => m.NightMenuView)
+);
+const CanliMenuView = dynamic(() =>
+  import("./CanliMenuView").then((m) => m.CanliMenuView)
+);
+const FerahMenuView = dynamic(() =>
+  import("./FerahMenuView").then((m) => m.FerahMenuView)
+);
+const KlasikQrMenuView = dynamic(() =>
+  import("./KlasikQrMenuView").then((m) => m.KlasikQrMenuView)
+);
+const VitrinMenuView = dynamic(() =>
+  import("./VitrinMenuView").then((m) => m.VitrinMenuView)
+);
+const ThemeSwitcher = dynamic(() =>
+  import("./ThemeSwitcher").then((m) => m.ThemeSwitcher)
+);
+const ItemDetailModal = dynamic(
+  () => import("./ItemDetailModal").then((m) => m.ItemDetailModal),
+  { ssr: false }
+);
+
+function ModalShell({
+  title,
+  message,
+  actionLabel,
+  onAction,
+  onClose,
+  language,
+  busy = false,
+}: {
+  title: string;
+  message: string;
+  actionLabel?: string;
+  onAction?: () => void;
+  onClose: () => void;
+  language: MenuLanguage;
+  busy?: boolean;
+}) {
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+  const dict = getUiDictionary(language);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus({ preventScroll: true });
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-busy={busy}
+      aria-label={title}
+      lang={language}
+      style={{ backgroundColor: "var(--menu-backdrop)" }}
+      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full rounded-t-[14px] border border-[var(--menu-border-strong)] bg-[var(--menu-surface)] p-5 text-[var(--menu-text)] shadow-xl sm:max-w-[440px] sm:rounded-[14px]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-[14px] font-medium text-[var(--menu-text)]">
+            {message}
+          </p>
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            className="shrink-0 rounded-[8px] border border-[var(--menu-border-strong)] px-3 py-1.5 text-[13px] font-medium text-[var(--menu-text)] hover:border-[var(--menu-accent)] hover:text-[var(--menu-accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--menu-focus)]"
+          >
+            {dict.nav.close}
+          </button>
+        </div>
+        {actionLabel && onAction && (
+          <button
+            type="button"
+            onClick={onAction}
+            className="mt-4 inline-flex items-center rounded-[8px] bg-[var(--menu-accent)] px-3.5 py-1.5 text-[13px] font-semibold text-[var(--menu-accent-contrast)] hover:bg-[var(--menu-accent-hover)]"
+          >
+            {actionLabel}
+          </button>
+        )}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+interface ModalErrorBoundaryProps {
+  children: ReactNode;
+  language: MenuLanguage;
+  onClose: () => void;
+  onRetry: () => void;
+}
+
+class ItemDetailErrorBoundary extends Component<
+  ModalErrorBoundaryProps,
+  { hasError: boolean }
+> {
+  constructor(props: ModalErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      const dict = getUiDictionary(this.props.language);
+      return (
+        <ModalShell
+          title={dict.modal.loadError}
+          message={dict.modal.loadError}
+          actionLabel={dict.modal.retry}
+          onAction={() => {
+            this.setState({ hasError: false });
+            this.props.onRetry();
+          }}
+          onClose={this.props.onClose}
+          language={this.props.language}
+        />
+      );
+    }
+    return this.props.children;
+  }
+}
 
 interface GuestMenuClientProps {
-  data: GuestMenuData;
+  data?: GuestMenuData;
   initialTheme?: MenuThemeId;
   explicitUrlLanguage?: MenuLanguage;
   explicitUrlColorMode?: ColorMode;
@@ -52,7 +201,7 @@ interface GuestMenuClientProps {
 }
 
 export function GuestMenuClient({
-  data,
+  data = PROTOTYPE_MENU,
   initialTheme,
   explicitUrlLanguage,
   explicitUrlColorMode,
@@ -124,6 +273,7 @@ export function GuestMenuClient({
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [modalRetryKey, setModalRetryKey] = useState(0);
   const [switcherHeight, setSwitcherHeight] = useState(
     showThemeSwitcher ? 49 : 0
   );
@@ -139,13 +289,21 @@ export function GuestMenuClient({
   const isSearching = normalizeTurkish(searchQuery).length > 0;
   const dict = getUiDictionary(effectiveLanguage);
 
-  // Sync HTML attributes symmetrically before paint on client updates and dev StrictMode remounts
+  // Sync HTML attributes symmetrically before paint without redundant root style invalidations
   useLayoutEffect(() => {
     const root = document.documentElement;
-    root.setAttribute("data-menu-theme", activeTheme);
-    root.setAttribute("data-color-mode", effectiveColorMode);
-    root.setAttribute("lang", effectiveLanguage);
-    root.style.colorScheme = effectiveColorMode;
+    if (root.getAttribute("data-menu-theme") !== activeTheme) {
+      root.setAttribute("data-menu-theme", activeTheme);
+    }
+    if (root.getAttribute("data-color-mode") !== effectiveColorMode) {
+      root.setAttribute("data-color-mode", effectiveColorMode);
+    }
+    if (root.getAttribute("lang") !== effectiveLanguage) {
+      root.setAttribute("lang", effectiveLanguage);
+    }
+    if (root.style.colorScheme !== effectiveColorMode) {
+      root.style.colorScheme = effectiveColorMode;
+    }
   }, [activeTheme, effectiveColorMode, effectiveLanguage]);
 
   const visibleSections = useMemo(() => {
@@ -555,6 +713,10 @@ export function GuestMenuClient({
     });
   }, []);
 
+  const handleRetryModal = useCallback(() => {
+    setModalRetryKey((prev) => prev + 1);
+  }, []);
+
   const selectedCategoryName = useMemo(() => {
     if (!selectedItem) return "";
     const cat = sortedCategories.find((c) => c.id === selectedItem.categoryId);
@@ -692,141 +854,58 @@ export function GuestMenuClient({
           stickyTopOffset={switcherHeight}
         />
       ) : (
-        <div className="min-h-screen bg-[var(--menu-bg)] text-[var(--menu-text)]">
-          <MenuHeader
-            business={data.business}
-            description={localizedBusinessDesc}
-            language={effectiveLanguage}
-          />
-
-          <CategoryNav
-            categories={sortedCategories}
-            activeCategoryId={activeCategoryId}
-            onSelectCategory={handleSelectCategory}
-            searchOpen={searchOpen}
-            onToggleSearch={handleToggleSearch}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            onClearSearch={handleClearSearch}
-            language={effectiveLanguage}
-            navRef={navRef}
-            stickyTopOffset={switcherHeight}
-          />
-
-          <main className="mx-auto w-full max-w-[820px] px-4 pt-3 pb-16 md:px-8 md:pt-6">
-            {isSearching && (
-              <div className="mb-4 flex items-center justify-between border-b border-[var(--menu-border)] pb-2.5 text-[13px] text-[var(--menu-text-secondary)]">
-                <span>{dict.search.resultsForQuery(trimmedQuery, totalMatches)}</span>
-                <button
-                  type="button"
-                  onClick={handleClearSearch}
-                  className="font-medium text-[var(--menu-accent)] hover:underline"
-                >
-                  {dict.nav.clear}
-                </button>
-              </div>
-            )}
-
-            {visibleSections.length === 0 ? (
-              <section
-                aria-live="polite"
-                className="my-6 border border-[var(--menu-border-strong)] bg-[var(--menu-surface)] px-5 py-8 text-left"
-              >
-                <p className="text-[11.5px] font-semibold tracking-[0.08em] uppercase text-[var(--menu-text-secondary)]">
-                  {dict.search.eyebrow}
-                </p>
-                <h2 className="mt-1.5 font-display text-[28px] leading-[1.08] font-bold text-[var(--menu-text)]">
-                  {dict.search.emptyTitle}
-                </h2>
-                <p className="mt-2 max-w-[46ch] text-[14px] leading-[1.55] text-[var(--menu-text-secondary)]">
-                  {dict.search.emptySubtitleAll}
-                </p>
-                <button
-                  type="button"
-                  onClick={handleClearSearch}
-                  className="mt-5 inline-flex items-center border border-[var(--menu-border-strong)] px-4 py-2 text-[13.5px] font-medium text-[var(--menu-text)] transition-colors duration-150 hover:border-[var(--menu-accent)] hover:text-[var(--menu-accent)]"
-                >
-                  {dict.nav.showAllMenu}
-                </button>
-              </section>
-            ) : (
-              <div className="space-y-8 md:space-y-10">
-                {visibleSections.map((section, sectionIndex) => {
-                  const catText = getCategoryText(
-                    section.category,
-                    effectiveLanguage
-                  );
-
-                  return (
-                    <section
-                      key={section.category.id}
-                      id={`kategori-${section.category.id}`}
-                      ref={(el) => {
-                        sectionRefs.current[section.category.id] = el;
-                      }}
-                      style={{
-                        scrollMarginTop: `${totalStickyOffset + 14}px`,
-                      }}
-                      aria-labelledby={`heading-${section.category.id}`}
-                    >
-                      <div className="border-b border-[var(--menu-border-strong)] pt-1 pb-2">
-                        <div className="flex items-baseline gap-2.5">
-                          <span className="shrink-0 text-[12px] font-semibold tabular-nums tracking-[0.08em] text-[var(--menu-accent)]">
-                            {section.orderLabel}
-                          </span>
-                          <h2
-                            id={`heading-${section.category.id}`}
-                            className="font-display text-[24px] leading-[1.06] font-bold tracking-[-0.005em] text-[var(--menu-text)] md:text-[30px]"
-                          >
-                            {catText.name}
-                          </h2>
-                        </div>
-                      </div>
-
-                      <div>
-                        {section.items.map((item, itemIndex) => (
-                          <MenuItemRow
-                            key={item.id}
-                            item={item}
-                            onSelect={handleSelectItem}
-                            language={effectiveLanguage}
-                            eager={sectionIndex === 0 && itemIndex < 4}
-                          />
-                        ))}
-                      </div>
-                    </section>
-                  );
-                })}
-              </div>
-            )}
-          </main>
-
-          <footer className="mx-auto w-full max-w-[820px] px-4 pb-10 md:px-8">
-            <div className="border-t border-[var(--menu-border-strong)] pt-4 text-[12.5px] text-[var(--menu-text-secondary)]">
-              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
-                <span>
-                  {data.business.name} · {data.business.address} ·{" "}
-                  <a
-                    href={data.business.phoneHref}
-                    className="text-[var(--menu-text)] underline decoration-[var(--menu-border)] underline-offset-2 hover:text-[var(--menu-accent)]"
-                  >
-                    {data.business.phone}
-                  </a>
-                </span>
-                <span>{dict.meta.vatIncluded}</span>
-              </div>
-            </div>
-          </footer>
-        </div>
+        <OzelMenuView
+          business={data.business}
+          description={localizedBusinessDesc}
+          categories={sortedCategories}
+          visibleSections={visibleSections}
+          activeCategoryId={activeCategoryId}
+          onSelectCategory={handleSelectCategory}
+          searchOpen={searchOpen}
+          onToggleSearch={handleToggleSearch}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onClearSearch={handleClearSearch}
+          isSearching={isSearching}
+          trimmedQuery={trimmedQuery}
+          totalMatches={totalMatches}
+          onSelectItem={handleSelectItem}
+          language={effectiveLanguage}
+          navRef={navRef}
+          sectionRefs={sectionRefs}
+          stickyTopOffset={switcherHeight}
+          totalStickyOffset={totalStickyOffset}
+        />
       )}
 
-      <ItemDetailModal
-        item={selectedItem}
-        categoryName={selectedCategoryName}
-        onClose={handleCloseModal}
-        theme={activeTheme}
-        language={effectiveLanguage}
-      />
+      {selectedItem && (
+        <ItemDetailErrorBoundary
+          key={`${selectedItem.id}-${modalRetryKey}`}
+          language={effectiveLanguage}
+          onClose={handleCloseModal}
+          onRetry={handleRetryModal}
+        >
+          <Suspense
+            fallback={
+              <ModalShell
+                title={dict.modal.loadingDetails}
+                message={dict.modal.loadingDetails}
+                onClose={handleCloseModal}
+                language={effectiveLanguage}
+                busy
+              />
+            }
+          >
+            <ItemDetailModal
+              item={selectedItem}
+              categoryName={selectedCategoryName}
+              onClose={handleCloseModal}
+              theme={activeTheme}
+              language={effectiveLanguage}
+            />
+          </Suspense>
+        </ItemDetailErrorBoundary>
+      )}
     </div>
   );
 }

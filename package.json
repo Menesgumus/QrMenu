@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/sync-image-manifest.mjs --verify",
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/sync-image-manifest.mjs --verify && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "images:sync": "node scripts/sync-image-manifest.mjs --write",
+    "images:verify": "node scripts/sync-image-manifest.mjs --verify"
   },
   "dependencies": {
     "next": "16.4.6",

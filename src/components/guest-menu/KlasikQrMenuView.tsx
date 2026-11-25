@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { formatPriceTRY } from "@/lib/format";
 import { getCategoryText, getItemText, getUiDictionary } from "@/lib/i18n";
@@ -11,6 +10,7 @@ import type {
   MenuLanguage,
 } from "@/types/menu";
 import { BrandMark } from "./BrandMark";
+import { MenuImage } from "./MenuImage";
 
 export type KlasikViewMode = "categories" | "items";
 
@@ -64,19 +64,18 @@ function KlasikItemRow({
     >
       {item.image && (
         <div className="relative h-[84px] w-[84px] shrink-0 overflow-hidden rounded-[9px] border border-[var(--menu-border)] bg-[var(--menu-surface-muted)] md:h-[92px] md:w-[92px]">
-          <Image
+          <MenuImage
             src={item.image.thumbUrl}
             alt={imageAlt}
-            width={92}
-            height={92}
-            sizes="(min-width: 768px) 92px, 84px"
+            preset="item-row"
+            fill
+            sizes="(max-width: 767px) 84px, 92px"
             loading={eager ? "eager" : "lazy"}
-            unoptimized
             style={{
               objectPosition:
                 item.image.focalPointByTheme?.klasik ?? "center center",
             }}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
         </div>
       )}
@@ -414,13 +413,13 @@ export function KlasikQrMenuView({
                         }`}
                       >
                         {category.coverImageUrl && (
-                          <Image
+                          <MenuImage
                             src={category.coverImageUrl}
                             alt={catText.coverImageAlt}
+                            preset="category-strip"
                             fill
-                            sizes="138px"
+                            sizes="(min-width: 768px) 138px, 112px"
                             loading={catIdx < 5 ? "eager" : "lazy"}
-                            unoptimized
                             style={{
                               objectPosition:
                                 category.coverObjectPosition?.klasik ??
@@ -518,13 +517,20 @@ export function KlasikQrMenuView({
                       }`}
                     >
                       {card.coverUrl && (
-                        <Image
+                        <MenuImage
                           src={card.coverUrl}
                           alt={card.coverAlt}
+                          preset="card-grid"
                           fill
-                          sizes="(min-width: 768px) 270px, 46vw"
+                          sizes={
+                            isLastOddMobile
+                              ? "(max-width: 767px) calc(100vw - 32px), 255px"
+                              : "(max-width: 767px) calc((100vw - 44px) / 2), 255px"
+                          }
                           loading={index < 6 ? "eager" : "lazy"}
-                          unoptimized
+                          fetchPriority={
+                            index === 0 || index === 4 ? "high" : undefined
+                          }
                           style={{
                             objectPosition:
                               card.category.coverObjectPosition?.klasik ??

@@ -5,6 +5,7 @@ node_modules
 out
 build
 coverage
+public/images/menu/hashed
 .env
 .env.*
 !.env.example

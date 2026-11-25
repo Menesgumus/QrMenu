@@ -1,7 +1,7 @@
 "use client";
 
-import QRCode from "qrcode";
 import {
+  useCallback,
   useEffect,
   useId,
   useMemo,
@@ -118,6 +118,8 @@ export function ShareMenu({
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [qrSvg, setQrSvg] = useState<string>("");
   const [qrPngDataUrl, setQrPngDataUrl] = useState<string>("");
+  const [qrStatus, setQrStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [qrRetryToken, setQrRetryToken] = useState(0);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -178,12 +180,19 @@ export function ShareMenu({
     [activeUrl]
   );
 
+  const handleRetryQr = useCallback(() => {
+    setQrRetryToken((prev) => prev + 1);
+  }, []);
+
   useEffect(() => {
     if (!open || !activeUrl) return;
     let cancelled = false;
 
     async function renderQrCodes() {
+      setQrStatus("loading");
       try {
+        const qrModule = await import("qrcode");
+        const QRCode = qrModule.default;
         const [svgMarkup, pngUrl] = await Promise.all([
           QRCode.toString(activeUrl, {
             type: "svg",
@@ -201,11 +210,13 @@ export function ShareMenu({
         if (!cancelled) {
           setQrSvg(svgMarkup);
           setQrPngDataUrl(pngUrl);
+          setQrStatus("ready");
         }
       } catch {
         if (!cancelled) {
           setQrSvg("");
           setQrPngDataUrl("");
+          setQrStatus("error");
         }
       }
     }
@@ -214,7 +225,7 @@ export function ShareMenu({
     return () => {
       cancelled = true;
     };
-  }, [open, activeUrl]);
+  }, [open, activeUrl, qrRetryToken]);
 
   async function handleCopyUrl() {
     if (!activeUrl) return;
@@ -394,7 +405,10 @@ export function ShareMenu({
           {/* QR Önizleme & İndirme (taranabilirlik için daima beyaz quiet-zone) */}
           <div className="mt-3 border-t border-[var(--menu-border)] pt-3">
             <div className="flex flex-col items-center">
-              <div className="flex h-[152px] w-[152px] items-center justify-center rounded-[10px] border border-[#D4D8DD] bg-white p-2">
+              <div
+                aria-busy={qrStatus === "loading"}
+                className="flex h-[152px] w-[152px] items-center justify-center rounded-[10px] border border-[#D4D8DD] bg-white p-2 text-center"
+              >
                 {qrSvg ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -402,8 +416,21 @@ export function ShareMenu({
                     alt={dict.share.qrAlt(activeThemeTitle, linkMode)}
                     className="h-full w-full"
                   />
+                ) : qrStatus === "error" ? (
+                  <div role="alert" className="flex flex-col items-center gap-2 px-1">
+                    <span className="text-[11px] leading-snug text-[#991B1B]">
+                      {dict.share.qrError}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleRetryQr}
+                      className="rounded-[6px] border border-[#1A1D21] px-2 py-0.5 text-[11px] font-semibold text-[#1A1D21] hover:bg-[#F1F3F5]"
+                    >
+                      {dict.share.qrRetry}
+                    </button>
+                  </div>
                 ) : (
-                  <span className="text-[11px] text-[#5E656E]">
+                  <span role="status" aria-live="polite" className="text-[11px] text-[#5E656E]">
                     {dict.share.qrPreparing}
                   </span>
                 )}

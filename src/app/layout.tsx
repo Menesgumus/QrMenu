@@ -14,16 +14,18 @@ import "./globals.css";
 
 const barlowCondensed = Barlow_Condensed({
   subsets: ["latin", "latin-ext"],
-  weight: ["600", "700", "800"],
+  weight: ["700", "800"],
   variable: "--font-barlow-condensed",
   display: "swap",
+  preload: false,
 });
 
 const bricolageGrotesque = Bricolage_Grotesque({
   subsets: ["latin", "latin-ext"],
-  weight: ["600", "700", "800"],
+  weight: ["700", "800"],
   variable: "--font-lively-display",
   display: "swap",
+  preload: false,
 });
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -31,6 +33,7 @@ const ibmPlexSans = IBM_Plex_Sans({
   weight: ["400", "500", "600"],
   variable: "--font-ibm-plex-sans",
   display: "swap",
+  preload: false,
 });
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -38,13 +41,15 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   weight: ["400", "500", "600", "700"],
   variable: "--font-visual-sans",
   display: "swap",
+  preload: false,
 });
 
 const fraunces = Fraunces({
   subsets: ["latin", "latin-ext"],
-  weight: ["500", "600", "700"],
+  weight: ["600"],
   variable: "--font-night-display",
   display: "swap",
+  preload: false,
 });
 
 const inter = Inter({
@@ -52,6 +57,7 @@ const inter = Inter({
   weight: ["400", "500", "600", "700"],
   variable: "--font-ferah-sans",
   display: "swap",
+  preload: false,
 });
 
 const dmSans = DM_Sans({
@@ -59,6 +65,7 @@ const dmSans = DM_Sans({
   weight: ["400", "500", "600", "700"],
   variable: "--font-klasik-sans",
   display: "swap",
+  preload: false,
 });
 
 const outfit = Outfit({
@@ -66,6 +73,7 @@ const outfit = Outfit({
   weight: ["400", "500", "600", "700"],
   variable: "--font-vitrin-sans",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {

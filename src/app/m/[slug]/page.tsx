@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { GuestMenuClient } from "@/components/guest-menu/GuestMenuClient";
 import { PROTOTYPE_MENU } from "@/data/prototype-menu";
 import {
@@ -30,13 +29,10 @@ export async function generateMetadata({
   };
 }
 
-async function ResolvedBusinessMenu({
+export default async function BusinessMenuPage({
   params,
   searchParams,
-}: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+}: PageProps<"/m/[slug]">) {
   const { slug } = await params;
 
   if (slug !== PROTOTYPE_MENU.business.slug) {
@@ -50,28 +46,10 @@ async function ResolvedBusinessMenu({
 
   return (
     <GuestMenuClient
-      data={PROTOTYPE_MENU}
       initialTheme={requestedTheme ?? PROTOTYPE_MENU.business.defaultTheme}
       explicitUrlLanguage={requestedLanguage}
       explicitUrlColorMode={requestedColorMode}
       showThemeSwitcher={false}
     />
-  );
-}
-
-export default function BusinessMenuPage({
-  params,
-  searchParams,
-}: PageProps<"/m/[slug]">) {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-[var(--menu-bg)] px-4 py-12 text-center text-[14px] text-[var(--menu-text-secondary)]">
-          Menü yükleniyor…
-        </div>
-      }
-    >
-      <ResolvedBusinessMenu params={params} searchParams={searchParams} />
-    </Suspense>
   );
 }

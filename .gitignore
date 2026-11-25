@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# generated content-hashed images (materialized cleanly during build/predev)
+/public/images/menu/hashed/
+
 # production
 /build
 

@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { formatPriceTRY } from "@/lib/format";
 import { getItemText } from "@/lib/i18n";
 import type { MenuItem, MenuLanguage } from "@/types/menu";
+import { MenuImage } from "./MenuImage";
 
 interface MenuItemRowProps {
   item: MenuItem;
@@ -44,13 +44,13 @@ export function MenuItemRow({
 
         {item.image && (
           <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-[2px] border border-[var(--menu-border)] bg-[var(--menu-surface-muted)] md:h-[104px] md:w-[104px]">
-            <Image
+            <MenuImage
               src={item.image.thumbUrl}
               alt={imageAlt}
+              preset="item-row"
               fill
-              sizes="(max-width: 768px) 88px, 104px"
+              sizes="(max-width: 767px) 88px, 104px"
               loading={eager ? "eager" : "lazy"}
-              unoptimized
               className="object-cover"
             />
           </div>

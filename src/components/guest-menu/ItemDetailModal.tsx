@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { formatPriceTRY } from "@/lib/format";
 import { getItemText, getUiDictionary } from "@/lib/i18n";
 import type { MenuItem, MenuLanguage, MenuThemeId } from "@/types/menu";
+import { MenuImage } from "./MenuImage";
 
 interface ItemDetailModalProps {
   item: MenuItem | null;
@@ -182,12 +182,15 @@ export function ItemDetailModal({
                     : "rounded-[12px] border-[var(--menu-border)] bg-[var(--menu-surface-muted)]"
               }`}
             >
-              <Image
+              <MenuImage
                 src={item.image.fullUrl}
                 alt={imageAlt}
+                preset="detail-modal"
+                sizes="(min-width: 640px) 510px, calc(100vw - 52px)"
                 width={item.image.width}
                 height={item.image.height}
-                unoptimized
+                loading="eager"
+                decoding="async"
                 className={`mx-auto block h-auto w-auto max-w-full object-contain ${
                   isNight || isCanli || isFerah || isKlasik
                     ? "max-h-[38dvh] sm:max-h-[48dvh]"

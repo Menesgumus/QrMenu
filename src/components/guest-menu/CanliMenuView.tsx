@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { formatPriceTRY } from "@/lib/format";
 import { getCategoryText, getItemText, getUiDictionary } from "@/lib/i18n";
@@ -11,6 +10,7 @@ import type {
   MenuLanguage,
 } from "@/types/menu";
 import { BrandMark } from "./BrandMark";
+import { MenuImage } from "./MenuImage";
 
 export type CanliViewMode = "categories" | "items";
 
@@ -63,15 +63,14 @@ function CanliItemRow({
     >
       {item.image && (
         <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-[10px] border border-[var(--menu-border)] bg-[var(--menu-surface-muted)] md:h-[104px] md:w-[104px]">
-          <Image
+          <MenuImage
             src={item.image.thumbUrl}
             alt={imageAlt}
-            width={104}
-            height={104}
-            sizes="(min-width: 768px) 104px, 88px"
+            preset="item-row"
+            fill
+            sizes="(max-width: 767px) 88px, 104px"
             loading={eager ? "eager" : "lazy"}
-            unoptimized
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
         </div>
       )}
@@ -468,13 +467,20 @@ export function CanliMenuView({
                       }`}
                     >
                       {card.coverUrl && (
-                        <Image
+                        <MenuImage
                           src={card.coverUrl}
                           alt={card.coverAlt}
+                          preset="card-grid"
                           fill
-                          sizes="(min-width: 768px) 300px, 46vw"
+                          sizes={
+                            isLastOddMobile
+                              ? "(max-width: 767px) 132px, 290px"
+                              : "(max-width: 767px) calc((100vw - 44px) / 2), 290px"
+                          }
                           loading={index < 6 ? "eager" : "lazy"}
-                          unoptimized
+                          fetchPriority={
+                            index === 0 || index === 2 ? "high" : undefined
+                          }
                           className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                         />
                       )}

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { formatPriceTRY } from "@/lib/format";
 import { getCategoryText, getItemText, getUiDictionary } from "@/lib/i18n";
 import type {
@@ -10,6 +9,7 @@ import type {
   MenuLanguage,
 } from "@/types/menu";
 import { BrandMark } from "./BrandMark";
+import { MenuImage } from "./MenuImage";
 
 export interface FerahVisibleSection {
   category: MenuCategory;
@@ -57,15 +57,14 @@ function FerahItemRow({
     >
       {item.image && (
         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[10px] border border-[var(--menu-border)] bg-[var(--menu-surface-muted)] md:h-24 md:w-24">
-          <Image
+          <MenuImage
             src={item.image.thumbUrl}
             alt={imageAlt}
-            width={96}
-            height={96}
-            sizes="(min-width: 768px) 96px, 80px"
+            preset="item-row"
+            fill
+            sizes="(max-width: 767px) 80px, 96px"
             loading={eager ? "eager" : "lazy"}
-            unoptimized
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
         </div>
       )}
@@ -283,7 +282,7 @@ export function FerahMenuView({
         ) : (
           /* Dikey Açılır-Kapanır Kategoriler (42-44px kare fotoğraf başlıkta) */
           <div className="space-y-3">
-            {visibleSections.map((section, secIdx) => {
+            {visibleSections.map((section) => {
               const isOpen =
                 isSearching || openCategoryIds.includes(section.category.id);
               const catText = getCategoryText(section.category, language);
@@ -318,21 +317,20 @@ export function FerahMenuView({
                     <div className="flex min-w-0 items-center gap-3">
                       {coverUrl.length > 0 && (
                         <div className="relative h-[42px] w-[42px] shrink-0 overflow-hidden rounded-[8px] border border-[var(--menu-border)] bg-[var(--menu-surface-muted)] md:h-[44px] md:w-[44px]">
-                          <Image
+                          <MenuImage
                             src={coverUrl}
                             alt=""
-                            width={44}
-                            height={44}
-                            sizes="44px"
-                            loading={secIdx < 6 ? "eager" : "lazy"}
-                            unoptimized
+                            preset="category-icon"
+                            fill
+                            sizes="(min-width: 768px) 44px, 42px"
+                            loading="lazy"
                             style={{
                               objectPosition:
                                 section.category.coverObjectPosition?.ferah ??
                                 section.category.coverObjectPosition?.klasik ??
                                 "center center",
                             }}
-                            className="h-full w-full object-cover"
+                            className="object-cover"
                           />
                         </div>
                       )}
@@ -381,13 +379,13 @@ export function FerahMenuView({
                       id={`ferah-panel-${section.category.id}`}
                       className="divide-y divide-[var(--menu-border)] border-t border-[var(--menu-border)] bg-[var(--menu-surface)]"
                     >
-                      {section.items.map((item, itemIdx) => (
+                      {section.items.map((item) => (
                         <FerahItemRow
                           key={item.id}
                           item={item}
                           onSelect={onSelectItem}
                           language={language}
-                          eager={secIdx === 0 && itemIdx < 4}
+                          eager={false}
                         />
                       ))}
                     </div>

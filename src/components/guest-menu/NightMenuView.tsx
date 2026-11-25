@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { formatPriceTRY } from "@/lib/format";
 import {
@@ -16,6 +15,7 @@ import type {
   MenuLanguage,
 } from "@/types/menu";
 import { BrandMark } from "./BrandMark";
+import { MenuImage } from "./MenuImage";
 
 export interface MenuSectionGroup {
   category: MenuCategory;
@@ -553,17 +553,23 @@ export function NightMenuView({
                             >
                               {item.image && (
                                 <div className="relative aspect-square w-full overflow-hidden bg-[var(--menu-surface-muted)]">
-                                  <Image
+                                  <MenuImage
                                     src={item.image.gridUrl}
                                     alt={imageAlt}
+                                    preset="card-grid"
                                     fill
-                                    sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 290px"
+                                    sizes="(max-width: 639px) calc((100vw - 44px) / 2), (max-width: 1023px) calc((100vw - 96px) / 3), 270px"
                                     loading={
                                       sectionIdx === 0 && itemIdx < 4
                                         ? "eager"
                                         : "lazy"
                                     }
-                                    unoptimized
+                                    fetchPriority={
+                                      sectionIdx === 0 &&
+                                      (itemIdx === 0 || itemIdx === 2)
+                                        ? "high"
+                                        : undefined
+                                    }
                                     className="object-cover"
                                   />
                                 </div>

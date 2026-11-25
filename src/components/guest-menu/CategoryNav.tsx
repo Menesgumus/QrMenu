@@ -128,7 +128,7 @@ export function CategoryNav({
                       : "font-medium text-[var(--menu-text-secondary)] hover:text-[var(--menu-text)]"
                   }`}
                 >
-                  <span className="tabular-nums text-[11px] opacity-75">
+                  <span className="tabular-nums text-[11px] font-medium">
                     {orderLabel}
                   </span>
                   <span className="md:hidden">{shortLabel}</span>

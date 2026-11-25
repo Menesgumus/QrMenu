@@ -10,6 +10,14 @@ services:
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_PRESENTATION_BASE_URL: ${NEXT_PUBLIC_PRESENTATION_BASE_URL:-https://menu.prilmones.com.tr}
+      HASHED_ASSET_KEEP_RELEASES: ${HASHED_ASSET_KEEP_RELEASES:-2}
+    volumes:
+      - qrmenu_hashed_assets:/app/public/images/menu/hashed
+      - qrmenu_hashed_state:/app/.hashed-state
     ports:
       - "127.0.0.1:${APP_PORT:?Sunucuda bos bir APP_PORT degeri .env dosyasinda tanimlanmalidir}:3000"
     restart: unless-stopped
+
+volumes:
+  qrmenu_hashed_assets:
+  qrmenu_hashed_state:

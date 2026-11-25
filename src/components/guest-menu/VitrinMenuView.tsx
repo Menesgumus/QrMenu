@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { formatPriceTRY } from "@/lib/format";
 import { getCategoryText, getItemText, getUiDictionary } from "@/lib/i18n";
@@ -11,6 +10,7 @@ import type {
   MenuLanguage,
 } from "@/types/menu";
 import { BrandMark } from "./BrandMark";
+import { MenuImage } from "./MenuImage";
 
 export type VitrinViewMode = "categories" | "items";
 
@@ -65,13 +65,13 @@ function VitrinItemRow({
     >
       {item.image && (
         <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[9px] bg-[var(--menu-surface-muted)] md:h-[108px] md:w-[108px]">
-          <Image
-            src={item.image.gridUrl}
+          <MenuImage
+            src={item.image.thumbUrl}
             alt={imageAlt}
+            preset="item-row"
             fill
-            sizes="(min-width: 768px) 108px, 96px"
+            sizes="(max-width: 767px) 96px, 108px"
             loading={eager ? "eager" : "lazy"}
-            unoptimized
             style={{
               objectPosition:
                 item.image.focalPointByTheme?.vitrin ?? "center center",
@@ -463,13 +463,18 @@ export function VitrinMenuView({
                     }`}
                   >
                     {tile.coverUrl && (
-                      <Image
+                      <MenuImage
                         src={tile.coverUrl}
                         alt={tile.coverAlt}
+                        preset="card-grid"
                         fill
-                        sizes="(min-width: 768px) 300px, 48vw"
+                        sizes={
+                          isLastOddMobile
+                            ? "(max-width: 767px) calc(100vw - 32px), 362px"
+                            : "(max-width: 767px) calc((100vw - 42px) * 0.625), 362px"
+                        }
                         loading={index < 6 ? "eager" : "lazy"}
-                        unoptimized
+                        fetchPriority={index === 0 || index === 2 ? "high" : undefined}
                         style={{
                           objectPosition:
                             tile.category.coverObjectPosition?.vitrin ??

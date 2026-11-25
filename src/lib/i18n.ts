@@ -83,6 +83,8 @@ export interface MenuUiDictionary {
     copied: string;
     openNewTab: string;
     qrPreparing: string;
+    qrError: string;
+    qrRetry: string;
     qrAlt: (themeTitle: string, mode: "sunum" | "musteri") => string;
     localWarning: string;
     readyQrHint: string;
@@ -90,6 +92,11 @@ export interface MenuUiDictionary {
     downloadSvgTest: string;
     downloadPng: string;
     downloadPngTest: string;
+  };
+  modal: {
+    loadingDetails: string;
+    loadError: string;
+    retry: string;
   };
   notFound: {
     eyebrow: string;
@@ -204,6 +211,8 @@ const DICTIONARIES: Record<MenuLanguage, MenuUiDictionary> = {
       copied: "Kopyalandı ✓",
       openNewTab: "Yeni sekmede aç",
       qrPreparing: "QR hazırlanıyor…",
+      qrError: "QR kodu hazırlanamadı.",
+      qrRetry: "Tekrar dene",
       qrAlt: (themeTitle, mode) =>
         `${themeTitle} ${mode === "sunum" ? "sunum" : "müşteri"} QR kodu`,
       localWarning:
@@ -213,6 +222,11 @@ const DICTIONARIES: Record<MenuLanguage, MenuUiDictionary> = {
       downloadSvgTest: "Test SVG İndir",
       downloadPng: "PNG İndir",
       downloadPngTest: "Test PNG İndir",
+    },
+    modal: {
+      loadingDetails: "Ürün detayı yükleniyor…",
+      loadError: "Ürün detayı şu anda yüklenemedi.",
+      retry: "Tekrar dene",
     },
     notFound: {
       eyebrow: "404 · Menü Bulunamadı",
@@ -328,6 +342,8 @@ const DICTIONARIES: Record<MenuLanguage, MenuUiDictionary> = {
       copied: "Copied ✓",
       openNewTab: "Open in new tab",
       qrPreparing: "Preparing QR…",
+      qrError: "Could not generate QR code.",
+      qrRetry: "Try again",
       qrAlt: (themeTitle, mode) =>
         `${themeTitle} ${mode === "sunum" ? "presentation" : "customer"} QR code`,
       localWarning:
@@ -337,6 +353,11 @@ const DICTIONARIES: Record<MenuLanguage, MenuUiDictionary> = {
       downloadSvgTest: "Test SVG",
       downloadPng: "Download PNG",
       downloadPngTest: "Test PNG",
+    },
+    modal: {
+      loadingDetails: "Loading item details…",
+      loadError: "Item details could not be loaded right now.",
+      retry: "Try again",
     },
     notFound: {
       eyebrow: "404 · Menu Not Found",
